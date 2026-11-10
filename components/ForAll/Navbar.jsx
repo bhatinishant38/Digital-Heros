@@ -91,10 +91,10 @@ export default function Navbar() {
             </a>
 
             <a
-              href="/register"
+              href="/api/auth/signup"
               className="hidden rounded-full bg-linear-to-r from-green-600 to-green-800 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-green-900/20 hover:shadow-md md:block"
             >
-              Register
+              Sign Up
             </a>
 
             <button
@@ -136,12 +136,12 @@ export default function Navbar() {
               ))}
 
               <a
-                href="/register"
+                href="/api/auth/signup"
                 onClick={() => setMenuOpen(false)}
                 tabIndex={menuOpen ? 0 : -1}
                 className="mt-3 mb-1 rounded-full bg-linear-to-r from-green-600 to-green-800 px-5 py-3 text-center text-sm font-semibold text-white"
               >
-                Register
+                Sign Up
               </a>
             </div>
           </div>

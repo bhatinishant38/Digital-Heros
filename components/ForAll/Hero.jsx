@@ -30,7 +30,7 @@ export default function Hero() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
-              href="/register"
+              href="/api/auth/signup"
               className="rounded-md bg-green-800 px-8 py-3 text-center font-semibold text-white hover:bg-green-900"
             >
               Register

@@ -124,7 +124,7 @@ export default function Subscriptions() {
         <div className="mt-8 flex justify-center ">
           <a
             type="button"
-            href="/register"
+            href="/api/auth/signup"
             
             className="mt-10  block sm:w-1/2 w-full rounded-md py-2.5 text-center text-sm font-semibold transition bg-green-700 text-white"
           >

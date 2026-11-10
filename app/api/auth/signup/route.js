@@ -2,7 +2,7 @@ import dbConnect from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
 import UserModel from "@/models/userModel";
 import bcrypt from "bcryptjs";
-import { success } from "zod";
+import validator from "validator";
 
 export async function POST(request){
     try {
@@ -26,7 +26,7 @@ export async function POST(request){
                 message : "Enter a valid email"
             },
             {
-                 status : 400
+                status : 400
             }
            )
         }
@@ -59,7 +59,35 @@ export async function POST(request){
          )
         }
 
-    }catch{
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password ,salt)
 
+        const newUser = await UserModel.create({
+            username,
+            email : email.toLowerCase() ,
+            password :hashedPassword ,
+        })
+
+        return NextResponse.json(
+            {
+                success :true ,
+                message : "User registered successfully",
+                user : {
+                    id : newUser._id,
+                    username :newUser.username,
+                    email : newUser.email
+                }
+            },
+            { status : 201}
+        )
+
+    }catch(error){
+        console.log("Signup error :" ,error)
+        return NextResponse.json({
+            success : false ,
+            message : "Internal server error"
+        },
+        {status : 500}
+      )
     }
 }

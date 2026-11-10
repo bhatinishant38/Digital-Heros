@@ -19,13 +19,13 @@ const UserSchema = new mongoose.Schema(
       required: true
     },
     subscriptionPlan : {
-        type : string ,
+        type : String ,
         enum : ['basic', 'pro']
     },
     charity : {
         type : String ,
     },
-    image : {type : string ,default : ''},
+    image : {type : String ,default : ''},
     gender: { type: String, default: "Not selected" },
     dob: { type: Date },
     phone: { type: String, default: "" },  
