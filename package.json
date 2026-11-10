@@ -15,11 +15,13 @@
     "lucide-react": "^1.71.0",
     "mongoose": "^9.12.1",
     "next": "16.4.6",
-    "next-auth": "^4.24.15",
+    "next-auth": "^5.0.0-beta.32",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-icons": "^5.7.0",
-    "toast": "^0.5.4"
+    "toast": "^0.5.4",
+    "validator": "^13.15.35",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",
