@@ -1,9 +1,9 @@
 'use client'
-import {  useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff, Leaf } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Router } from "next/router";
+import { useRouter } from "next/navigation";
 
 
 
@@ -65,35 +65,43 @@ function Logo() {
 
 
 export default function Register() {
-  
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    setIsSubmitting(true);
+
     try {
-      if(!agreed){
-        alert("please accept the terms and conditions.")
-        return
+      const { data } = await axios.post("/api/auth/signup", {
+        username,
+        email,
+        password,
+      });
+
+      if (data.success) {
+        setUserName("");
+        setEmail("");
+        setPassword("");
+        toast.success(data.message);
+        router.push("/login");
+      } else {
+        toast.error(data.message || "Unable to create your account.");
       }
-      const {data} = await axios.post(`/api/auth/signup` ,{username ,email ,password})
-      if(data.success){
-        console.log("User registered successfully:",data.user)
-        setUserName('')
-        setEmail('')
-        toast.success(data.message)  
-        router.push('/login')
-        
-      }
-      
     } catch (error) {
-      
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Unable to create your account. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
-    console.log('handling signup')
   };
 
   return (
@@ -129,6 +137,7 @@ export default function Register() {
                     id="fullName"
                     type="text"
                     value={username}
+                    required
                     onChange={(e) => setUserName(e.target.value)}
                     placeholder="John Doe"
                     autoComplete="name"
@@ -167,6 +176,8 @@ export default function Register() {
                       id="password"
                       type={showPassword ? "text" : "password"}
                       value={password}
+                      required
+                      minLength={8}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter a password"
                       autoComplete="new-password"
@@ -195,6 +206,7 @@ export default function Register() {
                   <input
                     type="checkbox"
                     checked={agreed}
+                    required
                     onChange={(e) => setAgreed(e.target.checked)}
                     className="h-4 w-4 rounded border-slate-300 text-green-700 focus:ring-green-600/30"
                   />
@@ -203,10 +215,10 @@ export default function Register() {
 
                 <button
                   type="submit"
-                  disabled={!agreed}
+                  disabled={!agreed || isSubmitting}
                   className="w-full rounded-lg bg-green-800 py-3 text-sm font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:bg-slate-300"
                 >
-                  Create account
+                  {isSubmitting ? "Creating account..." : "Create account"}
                 </button>
 
                 <p className="text-center text-sm text-slate-500">

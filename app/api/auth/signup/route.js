@@ -35,7 +35,7 @@ export async function POST(request){
         if(password.length<8){
             return NextResponse.json({
                 success :false ,
-                message : "Passwors must be at least 8 characters"
+                message : "Password must be at least 8 characters"
             },
             {
                 status:400

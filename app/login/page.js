@@ -1,11 +1,11 @@
 'use client'
 
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff, Leaf } from "lucide-react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
-import axios from "axios";
-
-import Navbar from "../../components/ForAll/Navbar";
 
 function Logo() {
   return (
@@ -67,18 +67,39 @@ function CourseScene() {
 }
 
 export default function Login() {
- 
   const [showPassword, setShowPassword] = useState(false);
- 
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const onSubmitHandler = async (event) => {
-      event.preventDefault();
-    console.log('login handling')
-  
+    event.preventDefault();
+    setIsSubmitting(true);
 
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+        redirectTo: "/dashboard",
+      });
+
+      if (!result?.ok || result.error) {
+        toast.error("Invalid email or password.");
+        return;
+      }
+
+      setEmail("");
+      setPassword("");
+      toast.success("Logged in successfully.");
+      router.push("/dashboard");
+      router.refresh();
+    } catch (error) {
+      toast.error(error?.message || "Unable to log in. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -161,13 +182,14 @@ export default function Login() {
 
                   <button
                     type="submit"
-                    className="w-full rounded-lg bg-green-800 py-3 text-sm font-semibold text-white transition hover:bg-green-900"
+                    disabled={isSubmitting}
+                    className="w-full rounded-lg bg-green-800 py-3 text-sm font-semibold text-white transition hover:bg-green-900 disabled:cursor-not-allowed disabled:bg-slate-400"
                   >
-                    Log in
+                    {isSubmitting ? "Logging in..." : "Log in"}
                   </button>
 
                   <p className="text-center text-sm text-slate-500">
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?{" "}
                     <a
                       href="/signup"
                       className="font-medium text-green-700 hover:text-green-800"
