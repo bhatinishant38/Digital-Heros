@@ -12,6 +12,7 @@
     "axios": "^1.21.1",
     "bcryptjs": "^3.0.3",
     "dotenv": "^18.0.10",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.71.0",
     "mongoose": "^9.12.1",
     "next": "16.4.6",
@@ -19,6 +20,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-icons": "^5.7.0",
+    "react-toastify": "^11.2.0",
     "toast": "^0.5.4",
     "validator": "^13.15.35",
     "zod": "^4.6.7"
