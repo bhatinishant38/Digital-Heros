@@ -22,11 +22,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
       },
 
-      async authorize(credentails) {
+      async authorize(credentials) {
         try {
           await dbConnect();
 
-          const { email, password } = credentails;
+          const { email, password } = credentials ?? {};
 
           if (
             typeof email !== "string" ||
@@ -58,9 +58,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // return authenticated user
 
           return {
-            id: user._id.toString(),
+             id: user._id.toString(),
+            _id: user._id.toString(),
             name: user.username,
             email: user.email,
+            username: user.username,
           };
         } catch (error) {
           console.log("Authentication error", error);
@@ -72,7 +74,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id?.toString();
+        token.username = user.username;
+        token.email = token.email
       }
       return token;
     },
