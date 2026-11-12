@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, ShieldCheck, RotateCcw, Heart } from "lucide-react";
+import Link from "next/link";
 
 const plans = [
   {
@@ -122,14 +123,12 @@ export default function Subscriptions() {
         </div>
 
         <div className="mt-8 flex justify-center ">
-          <a
-            type="button"
-            href="/api/auth/signup"
-            
-            className="mt-10  block sm:w-1/2 w-full rounded-md py-2.5 text-center text-sm font-semibold transition bg-green-700 text-white"
+          <Link
+            href="/signup"
+            className="mt-10 block w-full rounded-md bg-green-700 py-2.5 text-center text-sm font-semibold text-white transition sm:w-1/2"
           >
             Continue with {plans.find((p) => p.id === selectedPlan)?.name}
-          </a>
+          </Link>
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-6 border-t border-green-100 pt-6 sm:grid-cols-3 sm:gap-0">

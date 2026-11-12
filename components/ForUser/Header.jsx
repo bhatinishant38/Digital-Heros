@@ -2,7 +2,7 @@
 import { ChevronDown } from "lucide-react";
 
 const getGreeting = () => {
-  const h = Date.now();
+  const h = new Date().getHours();
   if (h < 12) return "Good Morning";
   if (h < 17) return "Good Afternoon";
   return "Good Evening";
@@ -15,7 +15,7 @@ const Header = ({ user }) => (
         {getGreeting()}, {user.name} 👋
       </h1>
       <p className="mt-1 text-sm text-gray-500">
-        Here's what's happening with your account.
+        Here&apos;s what&apos;s happening with your account.
       </p>
     </div>
 

@@ -20,14 +20,14 @@ const UserSchema = new mongoose.Schema(
     },
     subscriptionPlan : {
         type : String ,
-        enum : ['basic', 'pro']
+        enum : ['basic', 'pro']  
     },
     charity : {
-        type : String ,
+        type : String ,default:'',
     },
     image : {type : String ,default : ''},
     gender: { type: String, default: "Not selected" },
-    dob: { type: Date },
+    dob: { type: Date ,default :''},
     phone: { type: String, default: "" },  
   },
   {

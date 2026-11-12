@@ -15,14 +15,14 @@ import {
 
 const mainLinks = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/scores", label: "My Scores", icon: Target },
-  { to: "/draws", label: "Draws & Rewards", icon: Gift },
-  { to: "/charity", label: "Charity", icon: Heart },
+  { to: "/dashboard/MyScores", label: "My Scores", icon: Target },
+  { to: "/dashboard/DrawsRewards", label: "Draws & Rewards", icon: Gift },
+  { to: "/dashboard/charity", label: "Charity", icon: Heart },
 ];
 
 const accountLinks = [
-  { to: "/winnings", label: "Winnings", icon: Trophy },
-  { to: "/profile", label: "Profile", icon: User },
+  { to: "/dashboard/winnings", label: "Winnings", icon: Trophy },
+  { to: "/dashboard/profile", label: "Profile", icon: User },
 ];
 
 const NavItem = ({ to, label, icon: Icon, pathname }) => {

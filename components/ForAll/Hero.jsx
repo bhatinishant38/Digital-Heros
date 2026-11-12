@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Hero() {
   return (
     <section
@@ -29,12 +31,12 @@ export default function Hero() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a
-              href="/api/auth/signup"
+            <Link
+              href="/signup"
               className="rounded-md bg-green-800 px-8 py-3 text-center font-semibold text-white hover:bg-green-900"
             >
               Register
-            </a>
+            </Link>
 
             <a
               href="#How-It-Works"

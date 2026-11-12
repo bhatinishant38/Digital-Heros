@@ -1,5 +1,5 @@
-
-import React, { useContext } from 'react'
+'use client'
+import React,{ useContext } from 'react'
 import { AppContext } from "../../context/AppContext";
 import { formatDate } from "./formatDate";
 import Link from 'next/link';
@@ -13,7 +13,7 @@ const LatestScores = () => {
     <div className="mb-4 flex items-center justify-between">
       <h2 className="font-semibold text-gray-900">Latest Scores</h2>
       <Link
-        to="/userhome/scores"
+        href="/dashboard/MyScores"
         className="text-sm font-medium text-[#0B5D3B] hover:underline"
       >
         View All

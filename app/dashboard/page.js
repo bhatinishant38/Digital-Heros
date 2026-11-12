@@ -1,41 +1,41 @@
 import { Suspense } from "react";
-import { auth } from "@/app/api/auth/[...nextauth]/auth";
-
-
-import React from "react";
 import { Target, Ticket, Heart } from "lucide-react";
-import Header from "../../components/ForUser/Header";
-import StatCard from "../../components/ForUser/StatCard";
-import LatestScores from "../../components/ForUser/LatestScores";
-import NextDraw from "../../components/ForUser/NextDraw";
+import { auth } from "@/app/api/auth/[...nextauth]/auth";
+import Header from "@/components/ForUser/Header";
+import StatCard from "@/components/ForUser/StatCard";
+import LatestScores from "@/components/ForUser/LatestScores";
+import NextDraw from "@/components/ForUser/NextDraw";
+import CharityBanner from "@/components/ForUser/CharityBanner";
 
-import CharityBanner from "../../components/ForUser/CharityBanner";
+const DashboardContent = async () => {
+  const session = await auth();
+  const sessionUser = session?.user;
 
+  if (!sessionUser) {
+    return <p className="text-gray-700">Please log in to view your dashboard.</p>;
+  }
 
+  const user = {
+    name:
+      sessionUser.name ??
+      sessionUser.username ??
+      sessionUser.email?.split("@")[0] ??
+      "Player",
+    image: sessionUser.image ?? "",
+  };
+  const stats = { drawEntries: 3, charityContribution: 25 };
+  const nextDraw = { date: "01 Oct 2026", prize: "$1,25,000" };
+  const charity = { name: "Clean Water For All", percent: 10, image: "" };
 
-const mockData = {
-  user: { name: "User", image: "" },
-  stats: { totalScores: 5, drawEntries: 3, charityContribution: 25 },
-  
-  nextDraw: { date: "01 Oct 2026", prize: "$1,25,000" },
-  charity: { name: "Clean Water For All", percent: 10, image: "" },
-};
-
-const Dashboard = () => {
-  const data = mockData;
-const scores =[]
-
-  const { user, stats,  nextDraw, charity } = data;
-  
   return (
-    <main className="flex-1 space-y-6 p-8">
+    <main className="space-y-6">
       <Header user={user} />
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
           icon={Target}
           label="Total Scores"
-          value={scores.length}
+          value={0}
           note="(All Scores entries)"
         />
         <StatCard
@@ -68,4 +68,10 @@ const scores =[]
   );
 };
 
-export default Dashboard;
+export default function Dashboard() {
+  return (
+    <Suspense fallback={<p className="text-gray-500">Loading dashboard...</p>}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
