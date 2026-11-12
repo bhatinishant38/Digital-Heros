@@ -86,7 +86,9 @@ export default function Login() {
       });
 
       if (!result?.ok || result.error) {
-        toast.error("Invalid email or password.");
+        toast.error(
+          "Invalid email or password. If you don't have an account, please register first.",
+        );
         return;
       }
 
