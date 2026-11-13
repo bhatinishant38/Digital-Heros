@@ -17,7 +17,7 @@ export async function GET() {
 
     await dbConnect();
     const user = await UserModel.findById(userId).select(
-      "username email phone gender dob image subscriptionPlan ,charity",
+      "username email phone gender dob image subscriptionPlan subscriptionEnd charity",
     );
 
     if (!user) {
@@ -38,7 +38,8 @@ export async function GET() {
         dob: user.dob,
         image: user.image,
         subscriptionPlan: user.subscriptionPlan,
-        charity : user.charity
+        subscriptionEnd: user.subscriptionEnd,
+        charity: user.charity,
       },
     });
   } catch (error) {

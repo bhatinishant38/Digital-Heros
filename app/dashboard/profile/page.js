@@ -22,7 +22,7 @@ const formatDate = (date) =>
   });
 
 const inputClass =
-  "w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#0B5D3B] focus:ring-2 focus:ring-emerald-100";
+  "w-full text-gray-800 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#0B5D3B] focus:ring-2 focus:ring-emerald-100";
 
 // A label with a value (or an input) under it
 const Field = ({ label, children }) => (
@@ -37,7 +37,12 @@ const Field = ({ label, children }) => (
 const MyProfile = () => {
   // Everything shared comes from the context
 
-  const { getProfileData,setProfileData ,profileData} = useContext(AppContext)
+  const {
+    getProfileData,
+    profileData,
+    setProfileData,
+    updateProfile,
+  } = useContext(AppContext);
 
 
   const [isEdit, setIsEdit] = useState(false);
@@ -91,13 +96,16 @@ const MyProfile = () => {
     if (image) formData.append("image", image);
 
     setSaving(true);
-    const success = await updateProfile(formData); // the API call lives in the context
-    setSaving(false);
-
-    if (success) {
+    try {
+      await updateProfile(formData);
+      toast.success("Profile Updated")
       setImage(null);
       setPreview("");
       setIsEdit(false);
+    } catch (error) {
+      toast.error(error.message || "Unable to update your profile.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -106,7 +114,11 @@ const MyProfile = () => {
     setImage(null);
     setPreview("");
     setIsEdit(false);
-    await getUserProfile();
+    try {
+      await getProfileData();
+    } catch (error) {
+      toast.error(error.message || "Unable to reload your profile.");
+    }
   };
 
   if (!profileData) {
