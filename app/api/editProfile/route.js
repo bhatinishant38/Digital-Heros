@@ -1,7 +1,7 @@
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/userModel";
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 
 const allowedGenders = new Set(["Not selected", "Male", "Female", "Other"]);
@@ -25,17 +25,18 @@ function getProfile(user) {
 }
 
 export async function PUT(request) {
+  await connection();
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return NextResponse.json(
+      { success: false, message: "Authentication required." },
+      { status: 401 },
+    );
+  }
+
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
-
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, message: "Authentication required." },
-        { status: 401 },
-      );
-    }
-
     const formData = await request.formData();
     const name = formData.get("name");
     const phone = formData.get("phone");

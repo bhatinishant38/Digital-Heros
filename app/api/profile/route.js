@@ -1,20 +1,21 @@
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/models/userModel";
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 
 export async function GET() {
+  await connection();
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return NextResponse.json(
+      { message: "Authentication required." },
+      { status: 401 },
+    );
+  }
+
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
-
-    if (!userId) {
-      return NextResponse.json(
-        { message: "Authentication required." },
-        { status: 401 },
-      );
-    }
-
     await dbConnect();
     const user = await UserModel.findById(userId).select(
       "username email phone gender dob image subscriptionPlan subscriptionEnd charity",
