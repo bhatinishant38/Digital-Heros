@@ -5,7 +5,7 @@ import { createContext, useCallback, useEffect, useState } from "react";
 export const AppContext = createContext();
 
 async function fetchProfileData() {
-  const response = await fetch("/api/profile", { cache: "no-store" });
+  const response = await fetch("/api/profile/getProfile", { cache: "no-store" });
   const result = await response.json();
 
   if (response.status === 401) {
@@ -29,7 +29,7 @@ export const AppContextProvider = ({ children }) => {
   }, []);
 
   const updateProfile = useCallback(async (formData) => {
-    const response = await fetch("/api/editProfile", {
+    const response = await fetch("/api/profile/editProfile", {
       method: "PUT",
       body: formData,
     });
