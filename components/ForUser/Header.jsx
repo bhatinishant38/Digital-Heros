@@ -28,7 +28,7 @@ const Header = ({ user }) => (
         </div>
       )}
       <span className="text-sm font-medium text-gray-800">{user.name}</span>
-      <ChevronDown size={16} className="text-gray-500" />
+      
     </div>
   </header>
 );

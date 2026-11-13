@@ -24,7 +24,7 @@ const DashboardContent = async () => {
     image: sessionUser.image ?? "",
   };
   const stats = { drawEntries: 3, charityContribution: 25 };
-  const nextDraw = { date: "01 Oct 2026", prize: "$1,25,000" };
+  const nextDraw = { date: "01 Jan 2027", prize: "$1,25,000" };
   const charity = { name: "Clean Water For All", percent: 10, image: "" };
 
   return (

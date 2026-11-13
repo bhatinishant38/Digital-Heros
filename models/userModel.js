@@ -22,6 +22,7 @@ const UserSchema = new mongoose.Schema(
         type : String ,
         enum : ['basic', 'pro']  
     },
+    subscriptionEnd: { type: Date },
     charity : {
         type : String ,default:'',
     },
