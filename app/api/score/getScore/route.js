@@ -19,21 +19,23 @@ export async function GET(request){
     try {
       dbConnect()
       const scores = (await scoreModel.find({user:userId})).toSorted({date:-1})
+      if(!scores){
+        return NextResponse.json({
+            success : false ,
+            message : 'Score not found'
+        },{status : 404})
+      }
       return NextResponse.json({
         success : true ,
         scores
        },
        {status : 200}
-     )
-
-        
+     )   
     } catch (error) {
         console.log(error)
         return NextResponse.json({
             success : false ,
             message : "Something went wrong"
-        })
-        
+        },{status:500})     
     }
- 
 }

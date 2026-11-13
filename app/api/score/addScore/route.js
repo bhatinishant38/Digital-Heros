@@ -5,7 +5,7 @@ import { scoreModel } from "@/models/scoreModel";
 import { NextResponse } from "next/server";
 import { success } from "zod";
 
-const validateScore = (date, score) => {
+export const validateScore = (date, score) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date || "") || isNaN(new Date(date))) {
     return "Enter a valid date.";
   }
