@@ -1,46 +1,52 @@
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import dbConnect from "@/lib/dbConnect";
 import { scoreModel } from "@/models/scoreModel";
+import { connection, NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { NextResponse } from "next/server";
-import { success } from "zod";
 
-export async function POST(request,{params}){
+export async function DELETE(_request, { params }) {
+  await connection();
+  const session = await auth();
+  const userId = session?.user?.id;
 
-    const session = await auth()
-    const user = session.user
-    const userId = user.id
-    if (!userId) {
-        return NextResponse.json(
-            { message: "Authentication required." },
-            { status: 401 },
-        );
+  if (!userId) {
+    return NextResponse.json(
+      { success: false, message: "Authentication required." },
+      { status: 401 },
+    );
+  }
+
+  const { id } = await params;
+  if (!mongoose.isValidObjectId(id)) {
+    return NextResponse.json(
+      { success: false, message: "Score not found." },
+      { status: 404 },
+    );
+  }
+
+  try {
+    await dbConnect();
+    const deletedScore = await scoreModel.findOneAndDelete({
+      _id: id,
+      user: userId,
+    });
+
+    if (!deletedScore) {
+      return NextResponse.json(
+        { success: false, message: "Score not found." },
+        { status: 404 },
+      );
     }
-    try {
-        dbConnect()
-        const {id} = await params
-        if (!id) {
-        return NextResponse.json(
-            { success: false, message: 'ID is required' },
-            { status: 400 }
-          );
-        }
-        if (!mongoose.isValidObjectId(id)) {
-          return res.status(404).json({ success: false, message: "Score not found" });
-        }
-        const deleted = await scoreModel.findOneAndUpdate({_id :id,user : userId})
-        if (!deleted) {
-            return res.status(404).json({ success: false, message: "Score not found" });
-         }
-         return NextResponse.json({
-            success:true ,message : "Score not found"
-         },{
-            status:200
-         })        
-    } catch (error) {
-        console.log(error)
-        return NextResponse.json({
-            success:false ,message :"Something went wrong"
-        },{status:500})     
-    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Score deleted.",
+    });
+  } catch (error) {
+    console.error("Delete score error:", error);
+    return NextResponse.json(
+      { success: false, message: "Unable to delete score." },
+      { status: 500 },
+    );
+  }
 }

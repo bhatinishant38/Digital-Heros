@@ -1,16 +1,21 @@
 'use client'
-import {  useState } from "react";
+import { useContext, useState } from "react";
 import { toast } from "react-toastify";
 import { Plus } from "lucide-react";
 import ScoreTable from "@/components/ForUser/ScoreTable";
 import ScoreModal from "@/components/ForUser/ScoreModal";
 import { formatDate } from "@/components/ForUser/formatDate";
-
+import { AppContext } from "@/context/AppContext";
 
 
 const Scores = () => {
-  // The scores and every score action come from the context
-
+  const {
+    scores,
+    scoresLoading,
+    addScore,
+    updateScore,
+    deleteScore,
+  } = useContext(AppContext);
 
   const [saving, setSaving] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -26,24 +31,30 @@ const Scores = () => {
     setModalOpen(true);
   };
 
-  // const handleSave = async ({ date, score }) => {
-  //   // One entry per date: check here for instant feedback (the backend checks too)
-  //   const duplicate = scores.some(
-  //     (s) => s.date.slice(0, 10) === date && s._id !== editing?._id,
-  //   );
-  //   if (duplicate) {
-  //     toast.error("You already have a score for this date. Edit that entry instead.");
-  //     return;
-  //   }
+  const handleSave = async ({ date, score }) => {
+    const duplicate = scores.some(
+      (entry) =>
+        new Date(entry.date).toISOString().slice(0, 10) === date &&
+        entry._id !== editing?._id,
+    );
+    if (duplicate) {
+      toast.error("You already have a score for this date. Edit that entry instead.");
+      return;
+    }
 
-  //   setSaving(true);
-  //   const success = editing
-  //     ? await updateScore(editing._id, { date, score })
-  //     : await addScore({ date, score });
-  //   setSaving(false);
+    setSaving(true);
+    try {
+      const saved = editing
+        ? await updateScore(editing._id, { date, score })
+        : await addScore({ date, score });
 
-  //   if (success) setModalOpen(false);
-  // };
+      if (saved) {
+        setModalOpen(false);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleDelete = async (score) => {
     const sure = window.confirm(

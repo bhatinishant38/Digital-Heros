@@ -37,6 +37,8 @@ const ScoreModal = ({ open, initial, saving, onClose, onSave }) => {
           <input
             required
             min="1"
+            max="45"
+            step="1"
             type="number"
             value={score}
             onChange={(event) => setScore(event.target.value)}

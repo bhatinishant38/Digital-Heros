@@ -11,7 +11,12 @@ import {
   Trophy,
   User,
   LogOut,
+ 
 } from "lucide-react";
+import { MdSubscriptions } from "react-icons/md";
+
+
+
 
 const mainLinks = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -22,6 +27,7 @@ const mainLinks = [
 
 const accountLinks = [
   { to: "/dashboard/winnings", label: "Winnings", icon: Trophy },
+  { to: "/dashboard/subscription", label: "Subscription", icon:  MdSubscriptions },
   { to: "/dashboard/profile", label: "Profile", icon: User },
 ];
 
