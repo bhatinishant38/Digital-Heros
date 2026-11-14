@@ -23,6 +23,7 @@ const UserSchema = new mongoose.Schema(
         enum : ['basic', 'pro']  
     },
     subscriptionEnd: { type: Date },
+     isSubscribed : {type : Boolean ,default :false},
     charity : {
         type : String ,default:'',
     },
@@ -30,6 +31,7 @@ const UserSchema = new mongoose.Schema(
     gender: { type: String, default: "Not selected" },
     dob: { type: Date ,default :''},
     phone: { type: String, default: "" },  
+   
   },
   {
     timestamps: true
