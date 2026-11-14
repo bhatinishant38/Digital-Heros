@@ -2,6 +2,7 @@ import Razorpay from "razorpay";
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import { connection } from "mongoose";
 import { NextResponse } from "next/server";
+import UserModel from "@/models/userModel";
 
 const razorpay = new Razorpay({
     key_id : process.env.RAZORPAY_KEY_ID,
@@ -35,7 +36,25 @@ export async function POST(request) {
                 planType : plan
             }
         })
-        return NextResponse.json({ order : order.id ,amount : order.amount})
+
+        const expiryDate = new Date();
+
+        if (planType === "yearly") {
+            // Add 1 year to the current date
+            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+        } else {
+            // Add 1 month to the current date
+            expiryDate.setMonth(expiryDate.getMonth() + 1);
+        }
+
+        const  subscriptionPlanPurchase = await UserModel.findByIdAndUpdate(userId ,{ subscriptionPlan : plan , isSubscribed : true,subscriptionEnd :expiryDate})
+        if (!subscriptionPlanPurchase) {
+              return NextResponse.json(
+                { success: false, message: "Something went wrong in purchasing subscription plan." },
+                { status: 404 },
+              );
+            }
+        return NextResponse.json({ order : order.id ,amount : order.amount ,subscriptionPlanPurchase})
         
     } catch (error) {
         console.error("Razorpay Order Error:", error);
