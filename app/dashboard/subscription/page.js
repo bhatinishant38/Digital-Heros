@@ -1,8 +1,9 @@
-'use client'
+"use client";
 
 import { useState } from "react";
+import Script from "next/script";
 import { Check, ShieldCheck, RotateCcw, Heart } from "lucide-react";
-import Link from "next/link";
+import axios from "axios";
 
 const plans = [
   {
@@ -36,7 +37,7 @@ const plans = [
 ];
 
 const perks = [
-  { icon: ShieldCheck, title: "Secure payments", detail: "Powered by Stripe" },
+  { icon: ShieldCheck, title: "Secure payments", detail: "Powered by Razorpay" },
   { icon: RotateCcw, title: "Cancel anytime", detail: "No hidden fees" },
   { icon: Heart, title: "Make an impact", detail: "Support real charities" },
 ];
@@ -71,8 +72,14 @@ function PlanCard({ plan, selected, onSelect }) {
 
       <ul className="mt-6 space-y-3">
         {plan.features.map((feature) => (
-          <li key={feature} className="flex items-center gap-2 text-sm text-gray-600">
-            <Check className="h-4 w-4 shrink-0 text-green-600" strokeWidth={2.5} />
+          <li
+            key={feature}
+            className="flex items-center gap-2 text-sm text-gray-600"
+          >
+            <Check
+              className="h-4 w-4 shrink-0 text-green-600"
+              strokeWidth={2.5}
+            />
             {feature}
           </li>
         ))}
@@ -93,12 +100,79 @@ function PlanCard({ plan, selected, onSelect }) {
 
 export default function Subscriptions() {
   const [selectedPlan, setSelectedPlan] = useState("yearly");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const startPayment = async () => {
+    setIsProcessing(true);
+    setMessage("");
+
+    try {
+      const orderResponse = await axios.post("/api/payment/create-order", {plan: selectedPlan});
+      const order = await orderResponse.json();
+
+      if (!orderResponse.ok) {
+        throw new Error(
+          order.message ||
+            order.error ||
+            "Unable to start your payment. Please try again.",
+        );
+      }
+
+      if (!window.Razorpay) {
+        throw new Error("Payment checkout is not ready. Please try again.");
+      }
+
+      const checkout = new window.Razorpay({
+        key: order.key,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.order,
+        name: "Digital Heros",
+        description: `${selectedPlan} subscription`,
+        handler: async (payment) => {
+          try {
+            const verificationResponse = await axios.post("/api/payment/verify-order", {payment});
+            const verification = await verificationResponse.json();
+
+            if (!verificationResponse.ok) {
+              throw new Error(
+                verification.message ||
+                  verification.error ||
+                  "Payment verification failed.",
+              );
+            }
+
+            setMessage("Payment successful. Your subscription is active.");
+          } catch (error) {
+            setMessage(error.message || "Payment verification failed.");
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        modal: {
+          ondismiss: () => setIsProcessing(false),
+        },
+      });
+
+      checkout.open();
+    } catch (error) {
+      setMessage(error.message || "Unable to start your payment.");
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <section id="Subscriptions" className="bg-white">
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="afterInteractive"
+      />
       <div className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
         <div className="mb-10 text-center">
-          <p className="text-sm font-semibold text-green-700">Choose your plan</p>
+          <p className="text-sm font-semibold text-green-700">
+            Choose your plan
+          </p>
           <h2 className="mt-1 text-3xl font-bold tracking-tight text-green-950 sm:text-4xl">
             Simple pricing. Bigger impact.
           </h2>
@@ -122,13 +196,22 @@ export default function Subscriptions() {
           ))}
         </div>
 
-        <div className="mt-8 flex justify-center ">
-          <Link
-            href="/signup"
-            className="mt-10 block w-full rounded-md bg-green-700 py-2.5 text-center text-sm font-semibold text-white transition sm:w-1/2"
+        <div className="mt-8 flex flex-col items-center">
+          <button
+            type="button"
+            onClick={startPayment}
+            disabled={isProcessing}
+            className="mt-2 block w-full rounded-md bg-green-700 py-2.5 text-center text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-1/2"
           >
-            Continue with {plans.find((p) => p.id === selectedPlan)?.name}
-          </Link>
+            {isProcessing
+              ? "Processing..."
+              : `Continue with ${plans.find((plan) => plan.id === selectedPlan)?.name}`}
+          </button>
+          {message && (
+            <p className="mt-3 text-center text-sm text-gray-700" role="status">
+              {message}
+            </p>
+          )}
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-6 border-t border-green-100 pt-6 sm:grid-cols-3 sm:gap-0">
@@ -142,8 +225,12 @@ export default function Subscriptions() {
                 }`}
               >
                 <Icon className="h-5 w-5 text-green-600" />
-                <p className="mt-2 text-xs font-medium text-green-900">{perk.title}</p>
-                <p className="mt-0.5 text-[10px] text-gray-400">{perk.detail}</p>
+                <p className="mt-2 text-xs font-medium text-green-900">
+                  {perk.title}
+                </p>
+                <p className="mt-0.5 text-[10px] text-gray-400">
+                  {perk.detail}
+                </p>
               </div>
             );
           })}

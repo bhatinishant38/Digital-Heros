@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { Target, Ticket, Heart } from "lucide-react";
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import dbConnect from "@/lib/dbConnect";
@@ -10,6 +11,7 @@ import NextDraw from "@/components/ForUser/NextDraw";
 import CharityBanner from "@/components/ForUser/CharityBanner";
 
 const DashboardContent = async () => {
+  await connection();
   const session = await auth();
   const sessionUser = session?.user;
 

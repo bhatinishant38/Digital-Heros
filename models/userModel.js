@@ -20,10 +20,17 @@ const UserSchema = new mongoose.Schema(
     },
     subscriptionPlan : {
         type : String ,
-        enum : ['basic', 'pro']  
+        enum : [ 'monthly', 'yearly']
     },
     subscriptionEnd: { type: Date },
-     isSubscribed : {type : Boolean ,default :false},
+
+    isSubscribed : {type : Boolean ,default :false},
+    
+    verifiedPaymentIds: {
+      type: [String],
+      default: [],
+      select: false,
+    },
     charity : {
         type : String ,default:'',
     },
