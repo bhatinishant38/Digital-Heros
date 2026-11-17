@@ -1,5 +1,5 @@
 'use client'
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { Camera } from "lucide-react";
 import { AppContext } from "@/context/AppContext";
@@ -43,6 +43,8 @@ const MyProfile = () => {
     setProfileData,
     updateProfile,
   } = useContext(AppContext);
+
+
 
 
   const [isEdit, setIsEdit] = useState(false);

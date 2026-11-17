@@ -63,6 +63,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             name: user.username,
             email: user.email,
             username: user.username,
+            isSubscribe : user.isSubscribe
           };
         } catch (error) {
           console.log("Authentication error", error);
@@ -78,6 +79,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token._id = user._id?.toString() ?? user.id;
         token.username = user.username;
         token.email = user.email;
+        token.isSubscribe = user.isSubscribe
       }
       return token;
     },
@@ -87,6 +89,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user._id = token._id ?? token.id;
         session.user.email = token.email;
         session.user.username = token.username;
+        session.user.isSubscribe = token.isSubscribe
       }
       return session;
     },

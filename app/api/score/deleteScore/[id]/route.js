@@ -3,6 +3,7 @@ import dbConnect from "@/lib/dbConnect";
 import { scoreModel } from "@/models/scoreModel";
 import { connection, NextResponse } from "next/server";
 import mongoose from "mongoose";
+import { hasActiveSubscription } from "@/lib/hasActiveSubscription";
 
 export async function DELETE(_request, { params }) {
   await connection();
@@ -26,6 +27,16 @@ export async function DELETE(_request, { params }) {
 
   try {
     await dbConnect();
+    if (!(await hasActiveSubscription(userId))) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "An active subscription is required to manage scores.",
+        },
+        { status: 403 },
+      );
+    }
+
     const deletedScore = await scoreModel.findOneAndDelete({
       _id: id,
       user: userId,

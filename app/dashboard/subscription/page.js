@@ -108,10 +108,11 @@ export default function Subscriptions() {
     setMessage("");
 
     try {
-      const orderResponse = await axios.post("/api/payment/create-order", {plan: selectedPlan});
-      const order = await orderResponse.json();
-
-      if (!orderResponse.ok) {
+      const {data: order } = await axios.post(
+        "/api/payment/create-order",
+        { plan: selectedPlan },
+      );
+      if (!order?.success) {
         throw new Error(
           order.message ||
             order.error ||
@@ -132,10 +133,11 @@ export default function Subscriptions() {
         description: `${selectedPlan} subscription`,
         handler: async (payment) => {
           try {
-            const verificationResponse = await axios.post("/api/payment/verify-order", {payment});
-            const verification = await verificationResponse.json();
-
-            if (!verificationResponse.ok) {
+            const { data: verification } = await axios.post(
+              "/api/payment/verify-order",
+              payment,
+            );
+            if (!verification.success) {
               throw new Error(
                 verification.message ||
                   verification.error ||
@@ -145,7 +147,12 @@ export default function Subscriptions() {
 
             setMessage("Payment successful. Your subscription is active.");
           } catch (error) {
-            setMessage(error.message || "Payment verification failed.");
+            setMessage(
+              error.response?.data?.message ||
+                error.response?.data?.error ||
+                error.message ||
+                "Payment verification failed.",
+            );
           } finally {
             setIsProcessing(false);
           }
@@ -157,7 +164,12 @@ export default function Subscriptions() {
 
       checkout.open();
     } catch (error) {
-      setMessage(error.message || "Unable to start your payment.");
+      setMessage(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message ||
+          "Unable to start your payment.",
+      );
       setIsProcessing(false);
     }
   };

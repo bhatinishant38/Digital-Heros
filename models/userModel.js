@@ -4,8 +4,7 @@ const UserSchema = new mongoose.Schema(
     {
     username: {
       type: String,
-      required: true,
-      unique: true
+      required: true,  
     },
 
     email: {
@@ -25,7 +24,7 @@ const UserSchema = new mongoose.Schema(
     subscriptionEnd: { type: Date },
 
     isSubscribed : {type : Boolean ,default :false},
-    
+
     verifiedPaymentIds: {
       type: [String],
       default: [],

@@ -36,15 +36,13 @@ export async function POST(request) {
 
     await dbConnect();
 
-    const existingUser = await UserModel.findOne({
-      $or: [{ email }, { username }],
-    }).select("_id");
+    const existingUser = await UserModel.findOne({ email }).select("_id");
 
     if (existingUser) {
       return NextResponse.json(
         {
           success: false,
-          message: "That email or username is already registered",
+          message: "This email is already registered",
         },
         { status: 409 },
       );
@@ -64,7 +62,6 @@ export async function POST(request) {
         message: "User registered successfully",
         user: {
           id: newUser._id,
-          username: newUser.username,
           email: newUser.email,
         },
       },
@@ -79,10 +76,35 @@ export async function POST(request) {
     }
 
     if (error?.code === 11000) {
+      const duplicateField = Object.keys({
+        ...error.keyPattern,
+        ...error.keyValue,
+      })[0];
+
+      if (duplicateField === "username") {
+        console.error("A legacy unique username index blocked signup:", error);
+        return NextResponse.json(
+          {
+            success: false,
+            message:
+              "The database still enforces unique usernames. Remove its username unique index to allow duplicate usernames.",
+          },
+          { status: 500 },
+        );
+      }
+
+      if (duplicateField === "email") {
+        return NextResponse.json(
+          { success: false, message: "This email is already registered" },
+          { status: 409 },
+        );
+      }
+
+      console.error("Signup duplicate-key error:", error);
       return NextResponse.json(
         {
           success: false,
-          message: "That email or username is already registered",
+          message: `A unique database index${duplicateField ? ` on ${duplicateField}` : ""} blocked this signup.`,
         },
         { status: 409 },
       );

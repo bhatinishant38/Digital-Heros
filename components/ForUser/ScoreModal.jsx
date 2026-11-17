@@ -49,7 +49,7 @@ const ScoreModal = ({ open, initial, saving, onClose, onSave }) => {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-gray-200 px-4 py-2 text-sm"
+            className="rounded-lg border border-gray-400 px-4 py-2 text-sm text-gray-700"
           >
             Cancel
           </button>

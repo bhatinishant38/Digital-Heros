@@ -3,6 +3,7 @@ import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import { scoreModel } from "@/models/scoreModel";
 import { connection, NextResponse } from "next/server";
 import { validateScoreInput } from "@/lib/scoreValidation";
+import { hasActiveSubscription } from "@/lib/hasActiveSubscription";
 
 export async function POST(request) {
   await connection();
@@ -28,6 +29,16 @@ export async function POST(request) {
     }
 
     await dbConnect();
+    if (!(await hasActiveSubscription(userId))) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "An active subscription is required to manage scores.",
+        },
+        { status: 403 },
+      );
+    }
+
     const score = await scoreModel.create({
       user: userId,
       date: validated.date,

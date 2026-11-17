@@ -10,6 +10,31 @@ const plans = {
   yearly: { amount: 191899 * 100, duration: "year" },
 };
 
+function getSubscriptionEnd(currentEnd, duration) {
+  const now = new Date();
+  const endDate =
+    currentEnd instanceof Date &&
+    !Number.isNaN(currentEnd.getTime()) &&
+    currentEnd > now
+      ? new Date(currentEnd)
+      : now;
+  const dayOfMonth = endDate.getUTCDate();
+
+  endDate.setUTCDate(1);
+  if (duration === "year") {
+    endDate.setUTCFullYear(endDate.getUTCFullYear() + 1);
+  } else {
+    endDate.setUTCMonth(endDate.getUTCMonth() + 1);
+  }
+
+  const lastDayOfMonth = new Date(
+    Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth() + 1, 0),
+  ).getUTCDate();
+  endDate.setUTCDate(Math.min(dayOfMonth, lastDayOfMonth));
+
+  return endDate;
+}
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -99,8 +124,6 @@ export async function POST(request) {
     }
 
     if (user.verifiedPaymentIds.includes(razorpay_payment_id)) {
-
-      const subscriptionPurchase = await UserModel.findByIdAndUpdate(userId ,{ isSubscribed : true ,subscriptionPlan : plan ,verifiedPaymentIds : [razorpay_payment_id ,razorpay_order_id]})
       return NextResponse.json({
         success: true,
         alreadyProcessed: true,
@@ -111,14 +134,10 @@ export async function POST(request) {
       });
     }
 
-    const expiryDate = new Date(
-      user.subscriptionEnd > new Date() ? user.subscriptionEnd : new Date(),
+    const expiryDate = getSubscriptionEnd(
+      user.subscriptionEnd,
+      plans[plan].duration,
     );
-    if (plans[plan].duration === "year") {
-      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-    } else {
-      expiryDate.setMonth(expiryDate.getMonth() + 1);
-    }
 
     const updatedUser = await UserModel.findOneAndUpdate(
       {

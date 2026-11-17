@@ -4,6 +4,7 @@ import { scoreModel } from "@/models/scoreModel";
 import { connection, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { validateScoreInput } from "@/lib/scoreValidation";
+import { hasActiveSubscription } from "@/lib/hasActiveSubscription";
 
 export async function PUT(request) {
   await connection();
@@ -37,6 +38,16 @@ export async function PUT(request) {
     }
 
     await dbConnect();
+    if (!(await hasActiveSubscription(userId))) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "An active subscription is required to manage scores.",
+        },
+        { status: 403 },
+      );
+    }
+
     const updatedScore = await scoreModel.findOneAndUpdate(
       { _id: scoreId, user: userId },
       { date: validated.date, score: validated.score },
