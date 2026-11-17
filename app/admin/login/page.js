@@ -190,6 +190,16 @@ export default function Login() {
                     {isSubmitting ? "Logging in..." : "Log in"}
                   </button>
 
+                   <p className="text-center text-sm text-slate-500">
+                    Do you want to LogIn as  User?
+                    <a
+                      href="/login"
+                      className="font-medium text-green-700 hover:text-green-800"
+                    >
+                      User LogIn
+                    </a>
+                  </p>
+
                   
                 </form>
               </div>
