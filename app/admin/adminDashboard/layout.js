@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import AdminSidebar from "@/components/ForAdmin/AdminSidebar";
+import { AdminContextProvider } from "@/context/AdminContext";
 import { connection } from "next/server";
 import { redirect } from "next/navigation";
 
@@ -22,14 +23,16 @@ async function AdminLayoutContent({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <AdminSidebar />
-      <div className="min-w-0 flex-1">
-        <div className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          {children}
+    <AdminContextProvider>
+      <div className="flex min-h-screen bg-slate-50">
+        <AdminSidebar />
+        <div className="min-w-0 flex-1">
+          <div className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+            {children}
+          </div>
         </div>
       </div>
-    </div>
+    </AdminContextProvider>
   );
 }
 

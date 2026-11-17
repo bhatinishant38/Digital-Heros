@@ -84,6 +84,12 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             {/* Visible on every screen size */}
             <a
+              href="/admin/login"
+              className="rounded-full px-3 py-2 text-sm font-semibold text-green-800 hover:bg-green-50 sm:px-4"
+            >
+              Admin
+            </a>
+            <a
               href="/login"
               className="rounded-full px-3 py-2 text-sm font-semibold text-green-800 hover:bg-green-50 sm:px-4"
             >

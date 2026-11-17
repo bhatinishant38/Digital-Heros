@@ -84,7 +84,7 @@ export default function AdminSidebar() {
 
       <button
         type="button"
-        onClick={() => signOut({ redirectTo: "/admin/login" })}
+        onClick={() => signOut({ redirectTo: "/" })}
         aria-label="Log out"
         title="Log out"
         className="mt-auto flex w-full items-center justify-center gap-3 rounded-lg px-2 py-2.5 text-sm text-emerald-100/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:justify-start md:px-3"
