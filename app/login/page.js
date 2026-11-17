@@ -86,6 +86,11 @@ export default function Login() {
       });
 
       if (!result?.ok || result.error) {
+        if (result?.code === "admin_account") {
+          toast.error("User already registered.");
+          return;
+        }
+
         toast.error(
           "Invalid email or password. If you don't have an account, please register first.",
         );

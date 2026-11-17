@@ -1,8 +1,12 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import dbConnect from "../../../../lib/dbConnect";
 import UserModel from "../../../../models/userModel";
 import bcrypt from "bcryptjs";
+
+class AdminAccountOnUserLogin extends CredentialsSignin {
+  code = "admin_account";
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
@@ -19,6 +23,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: {
           label: "Password",
           type: "password",
+        },
+        adminLogin: {
+          label: "Admin login",
+          type: "text",
         },
       },
 
@@ -55,17 +63,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
+          const role = user.role ?? "user";
+          const isAdminLogin = credentials.adminLogin === "true";
+
+          if (role === "admin" && !isAdminLogin) {
+            throw new AdminAccountOnUserLogin();
+          }
+
+          if (isAdminLogin && role !== "admin") {
+            return null;
+          }
+
           // return authenticated user
 
           return {
-             id: user._id.toString(),
+            id: user._id.toString(),
             _id: user._id.toString(),
             name: user.username,
             email: user.email,
             username: user.username,
-            isSubscribe : user.isSubscribe
+            isSubscribed: user.isSubscribed,
+            role,
           };
         } catch (error) {
+          if (error instanceof CredentialsSignin) {
+            throw error;
+          }
+
           console.log("Authentication error", error);
           return null;
         }
@@ -79,7 +103,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token._id = user._id?.toString() ?? user.id;
         token.username = user.username;
         token.email = user.email;
-        token.isSubscribe = user.isSubscribe
+        token.isSubscribed = user.isSubscribed;
+        token.role = user.role ?? "user";
       }
       return token;
     },
@@ -89,7 +114,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user._id = token._id ?? token.id;
         session.user.email = token.email;
         session.user.username = token.username;
-        session.user.isSubscribe = token.isSubscribe
+        session.user.isSubscribed = token.isSubscribed ?? false;
+        session.user.role = token.role ?? "user";
       }
       return session;
     },

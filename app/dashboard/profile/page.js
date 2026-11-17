@@ -51,7 +51,38 @@ const MyProfile = () => {
   const [image, setImage] = useState(null); // new photo the user picked
   const [preview, setPreview] = useState(""); // preview of that photo
   const [saving, setSaving] = useState(false);
+  const [profileRequestComplete, setProfileRequestComplete] = useState(false);
+  const [profileError, setProfileError] = useState("");
   const fileInputRef = useRef(null);
+  const profileLoading = !profileData && !profileRequestComplete;
+
+  useEffect(() => {
+    if (profileData) return;
+
+    let active = true;
+
+    getProfileData()
+      .then((profile) => {
+        if (active && !profile) {
+          setProfileError("Please log in to view your profile.");
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setProfileError(error.message || "Unable to load your profile.");
+          toast.error(error.message || "Unable to load your profile.");
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setProfileRequestComplete(true);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [getProfileData, profileData]);
 
   // Change one field of profileData while editing
   const updateField = (field, value) => {
@@ -123,10 +154,18 @@ const MyProfile = () => {
     }
   };
 
-  if (!profileData) {
+  if (profileLoading) {
     return (
       <p className="py-10 text-center text-sm text-gray-400">
         Loading your profile...
+      </p>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <p className="py-10 text-center text-sm text-gray-400">
+        {profileError || "Your profile is unavailable."}
       </p>
     );
   }
