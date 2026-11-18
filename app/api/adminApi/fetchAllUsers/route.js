@@ -23,7 +23,7 @@ export async function GET() {
 
   try {
     await dbConnect();
-    const records = await UserModel.find({})
+    const records = await UserModel.find({role:'user'})
       .select(
         "username email phone subscriptionPlan subscriptionEnd isSubscribed charity createdAt image",
       )

@@ -1,16 +1,16 @@
 
-import { Suspense, useContext } from "react";
+import { Suspense } from "react";
 import { connection } from "next/server";
 import { Target, Ticket, Heart } from "lucide-react";
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import dbConnect from "@/lib/dbConnect";
+import { scoreModel } from "@/models/scoreModel";
 import UserModel from "@/models/userModel";
 import Header from "@/components/ForUser/Header";
 import StatCard from "@/components/ForUser/StatCard";
 import LatestScores from "@/components/ForUser/LatestScores";
 import NextDraw from "@/components/ForUser/NextDraw";
 import CharityBanner from "@/components/ForUser/CharityBanner";
-import { AppContext } from "@/context/AppContext";
 
 const DashboardContent = async () => {
   await connection();
@@ -22,9 +22,10 @@ const DashboardContent = async () => {
   }
 
   await dbConnect();
-  const profile = await UserModel.findById(sessionUser.id).select(
-    "username image",
-  );
+  const [profile, scoreCount] = await Promise.all([
+    UserModel.findById(sessionUser.id).select("username image"),
+    scoreModel.countDocuments({ user: sessionUser.id }),
+  ]);
 
   if (!profile) {
     return <p className="text-gray-700">Please log in to view your dashboard.</p>;
@@ -37,8 +38,6 @@ const DashboardContent = async () => {
   const stats = { drawEntries: 3, charityContribution: 25 };
   const nextDraw = { date: "01 Jan 2027", prize: "$1,25,000" };
   const charity = { name: "Clean Water For All", percent: 10, image: "" };
-  const {scores} = useContext(AppContext)
-  const score = scores.length
 
   return (
     <main className="space-y-6">
@@ -48,7 +47,7 @@ const DashboardContent = async () => {
         <StatCard
           icon={Target}
           label="Total Scores"
-          value={score}
+          value={scoreCount}
           note="(All Scores entries)"
         />
         <StatCard
