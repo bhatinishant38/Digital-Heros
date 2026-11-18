@@ -1,45 +1,7 @@
 "use client";
 
-import { createContext, useMemo, useState } from "react";
-
-const initialUsers = [
-  {
-    _id: "user-001",
-    name: "Rohit Sharma",
-    email: "rohit@example.com",
-    phone: "+919876543210",
-    subscriptionPlan: "yearly",
-    subscriptionEnd: "2027-10-12T00:00:00.000Z",
-    isSubscribed: true,
-    charity: "Clean Water For All",
-    createdAt: "2026-10-12T10:00:00.000Z",
-    image: "",
-  },
-  {
-    _id: "user-002",
-    name: "Neha Singh",
-    email: "neha@example.com",
-    phone: "+919876543211",
-    subscriptionPlan: "monthly",
-    subscriptionEnd: "2026-10-31T00:00:00.000Z",
-    isSubscribed: false,
-    charity: "Green Earth Initiative",
-    createdAt: "2026-09-04T10:00:00.000Z",
-    image: "",
-  },
-  {
-    _id: "user-003",
-    name: "Aman Verma",
-    email: "aman@example.com",
-    phone: "",
-    subscriptionPlan: "monthly",
-    subscriptionEnd: "2026-12-05T00:00:00.000Z",
-    isSubscribed: true,
-    charity: "Education for Every Child",
-    createdAt: "2026-11-02T10:00:00.000Z",
-    image: "",
-  },
-];
+import axios from "axios";
+import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 
 const initialCharities = [
   {
@@ -83,9 +45,71 @@ const initialCategories = [
 
 export const AdminContext = createContext(null);
 
+const getErrorMessage = (error, fallback) =>
+  error.response?.data?.message || error.message || fallback;
+
+const fetchAllUsers = async()=>{
+  try {
+    const {data}= await axios.get(`/api/adminApi/fetchAllUsers`)
+
+    if (!data.success || !Array.isArray(data.users)) {
+      throw new Error(data.message || "Unable to fetch all users.");
+    }
+
+    return data.users
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Unable to fetch all users."));
+  }
+}
+
 export function AdminContextProvider({ children }) {
-  const [users] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [usersError, setUsersError] = useState("");
   const [charities, setCharities] = useState(initialCharities);
+
+  const getAllUsers = useCallback(async () => {
+    setLoading(true);
+    setUsersError("");
+
+    try {
+      const allUsers = await fetchAllUsers();
+      setUsers(allUsers);
+      return allUsers;
+    } catch (error) {
+      const message = getErrorMessage(error, "Unable to fetch all users.");
+      setUsersError(message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    fetchAllUsers()
+      .then((allUsers) => {
+        if (active) {
+          setUsers(allUsers);
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setUsersError(getErrorMessage(error, "Unable to fetch all users."));
+          console.error("Unable to load admin users:", error);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const charityNames = useMemo(
     () =>
@@ -97,11 +121,14 @@ export function AdminContextProvider({ children }) {
 
   const value = {
     users,
-    loading: false,
+    getAllUsers,
+    loading,
+    usersError,
     charities,
     setCharities,
     categories: initialCategories,
     charityNames,
+    fetchAllUsers
   };
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

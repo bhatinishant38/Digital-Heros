@@ -1,4 +1,5 @@
-import { Suspense } from "react";
+
+import { Suspense, useContext } from "react";
 import { connection } from "next/server";
 import { Target, Ticket, Heart } from "lucide-react";
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
@@ -9,6 +10,7 @@ import StatCard from "@/components/ForUser/StatCard";
 import LatestScores from "@/components/ForUser/LatestScores";
 import NextDraw from "@/components/ForUser/NextDraw";
 import CharityBanner from "@/components/ForUser/CharityBanner";
+import { AppContext } from "@/context/AppContext";
 
 const DashboardContent = async () => {
   await connection();
@@ -35,6 +37,8 @@ const DashboardContent = async () => {
   const stats = { drawEntries: 3, charityContribution: 25 };
   const nextDraw = { date: "01 Jan 2027", prize: "$1,25,000" };
   const charity = { name: "Clean Water For All", percent: 10, image: "" };
+  const {scores} = useContext(AppContext)
+  const score = scores.length
 
   return (
     <main className="space-y-6">
@@ -44,7 +48,7 @@ const DashboardContent = async () => {
         <StatCard
           icon={Target}
           label="Total Scores"
-          value={0}
+          value={score}
           note="(All Scores entries)"
         />
         <StatCard

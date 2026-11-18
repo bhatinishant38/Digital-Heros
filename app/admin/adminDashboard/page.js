@@ -46,7 +46,7 @@ const StatCard = ({ icon: Icon, label, value, note }) => (
 // ---- Page ----
 
 const AdminDashboard = () => {
-  const { users, loading } = useContext(AdminContext);
+  const { users, loading, usersError } = useContext(AdminContext);
   const data = mockData;
   const { totalDraws, totalWinners, pendingVerifications, prizePaid, charityRaised, nextDraw, pendingWinners } = data;
 
@@ -62,7 +62,6 @@ const AdminDashboard = () => {
   const recentUsers = [...users]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5);
-
   const newUsersThisMonth = users.filter((u) => {
     const created = new Date(u.createdAt);
     const now = new Date();
@@ -145,6 +144,12 @@ const AdminDashboard = () => {
                   <tr>
                     <td colSpan={3} className="py-6 text-center text-gray-400">
                       Loading users...
+                    </td>
+                  </tr>
+                ) : usersError ? (
+                  <tr>
+                    <td colSpan={3} className="py-6 text-center text-red-600" role="alert">
+                      {usersError}
                     </td>
                   </tr>
                 ) : recentUsers.length === 0 ? (

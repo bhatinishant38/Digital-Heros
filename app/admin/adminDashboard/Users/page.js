@@ -20,7 +20,7 @@ const isExpired = (user) =>
   Boolean(user.subscriptionEnd && new Date(user.subscriptionEnd) < new Date());
 
 const inputClass =
-  "rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#0B5D3B] focus:ring-2 focus:ring-emerald-100";
+  "rounded-lg border  text-gray-500 border-gray-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#0B5D3B] focus:ring-2 focus:ring-emerald-100";
 
 // A small number card at the top
 const SummaryCard = ({ icon: Icon, label, value }) => (
@@ -38,7 +38,7 @@ const SummaryCard = ({ icon: Icon, label, value }) => (
 // ---- Page ----
 
 const Users = () => {
-  const { users, loading, charityNames = {} } = useContext(AdminContext);
+  const { users, loading, usersError, charityNames = {} } = useContext(AdminContext);
 
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
@@ -120,11 +120,11 @@ const Users = () => {
             setPlanFilter(e.target.value);
             setPage(1);
           }}
-          className={`${inputClass} sm:w-44`}
+          className={`${inputClass} sm:w-44 `}
         >
-          <option value="all">All plans</option>
-          <option value="monthly">Monthly</option>
-          <option value="yearly">Yearly</option>
+          <option className="text-gray-600" value="all">All plans</option>
+          <option className="text-gray-600" value="monthly">Monthly</option>
+          <option className="text-gray-600" value="yearly">Yearly</option>
         </select>
       </div>
 
@@ -150,6 +150,16 @@ const Users = () => {
                     className="px-5 py-10 text-center text-gray-400"
                   >
                     Loading users...
+                  </td>
+                </tr>
+              ) : usersError ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-5 py-10 text-center text-red-600"
+                    role="alert"
+                  >
+                    {usersError}
                   </td>
                 </tr>
               ) : pageUsers.length === 0 ? (
