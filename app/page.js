@@ -15,6 +15,9 @@ const page = async () => {
   await connection();
   const session = await auth();
 
+  if (session?.user?.role === "admin") {
+    redirect("/admin/adminDashboard");
+  }
   if (session?.user) {
     redirect("/dashboard");
   }
