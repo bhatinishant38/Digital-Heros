@@ -14,7 +14,14 @@ const Charities = () => {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState("");
 
-  const { charities, setCharities } = useContext(AdminContext);
+  const {
+    charities,
+    setCharities,
+    createCharity,
+    getAllCharities,
+    charitiesLoading,
+    charitiesError,
+  } = useContext(AdminContext);
 
   const handleAddClick = () => {
     setEditingCharity(null);
@@ -43,20 +50,19 @@ const Charities = () => {
 
     setSaving(true);
     try {
-      const image =
-        imageFile instanceof File
-          ? URL.createObjectURL(imageFile)
-          : editingCharity?.image || "";
       const charity = {
         name,
         category,
         description,
         raised: Number(formData.get("raised")) || 0,
         members: Number(formData.get("members")) || 0,
-        image,
       };
 
       if (editingCharity) {
+        charity.image =
+          imageFile instanceof File
+            ? URL.createObjectURL(imageFile)
+            : editingCharity.image || "";
         setCharities((current) =>
           current.map((item) =>
             item._id === editingCharity._id ? { ...item, ...charity } : item,
@@ -64,11 +70,8 @@ const Charities = () => {
         );
         toast.success("Charity updated (demo)");
       } else {
-        setCharities((current) => [
-          { _id: `demo-${Date.now()}`, ...charity },
-          ...current,
-        ]);
-        toast.success("Charity created (demo)");
+        const result = await createCharity(formData);
+        toast.success(result.message || "Charity added successfully.");
       }
       setIsModalOpen(false);
       setEditingCharity(null);
@@ -119,7 +122,32 @@ const Charities = () => {
       </div>
 
       <div className="mt-6">
-        <CharityList charities={charities} onEdit={handleEdit} onDelete={handleDelete} deletingId={deletingId} />
+        {charitiesLoading ? (
+          <p className="mt-10 text-center text-sm text-gray-500">
+            Loading charities...
+          </p>
+        ) : charitiesError ? (
+          <div className="mt-10 text-center">
+            <p className="text-sm text-red-600">{charitiesError}</p>
+            <button
+              type="button"
+              onClick={() =>
+                getAllCharities().catch((error) =>
+                  toast.error(error.message || "Unable to fetch charities."),
+                )
+              }
+              className="mt-3 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Try again
+            </button>
+          </div>
+        ) : (
+          <CharityList
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            deletingId={deletingId}
+          />
+        )}
       </div>
 
       <AddCharity

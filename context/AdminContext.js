@@ -3,36 +3,6 @@
 import axios from "axios";
 import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 
-const initialCharities = [
-  {
-    _id: "charity-001",
-    name: "Clean Water For All",
-    category: "Environment",
-    description: "Bringing reliable clean water to communities in need.",
-    raised: 185000,
-    members: 420,
-    image: "",
-  },
-  {
-    _id: "charity-002",
-    name: "Education for Every Child",
-    category: "Education",
-    description: "Helping children access learning resources and support.",
-    raised: 132500,
-    members: 315,
-    image: "",
-  },
-  {
-    _id: "charity-003",
-    name: "Community Health Fund",
-    category: "Healthcare",
-    description: "Supporting essential healthcare in local communities.",
-    raised: 68100,
-    members: 208,
-    image: "",
-  },
-];
-
 const initialCategories = [
   "All",
   "Education",
@@ -62,14 +32,30 @@ const fetchAllUsers = async()=>{
   }
 }
 
+const fetchAllCharities = async () => {
+  try {
+    const { data } = await axios.get("/api/adminApi/Charity/getCharities");
+
+    if (!data.success || !Array.isArray(data.charities)) {
+      throw new Error(data.message || "Unable to fetch all charities.");
+    }
+
+    return data.charities;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Unable to fetch all charities."));
+  }
+};
+
 export function AdminContextProvider({ children }) {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [userLoading, setUserLoading] = useState(true);
   const [usersError, setUsersError] = useState("");
-  const [charities, setCharities] = useState(initialCharities);
+  const [charities, setCharities] = useState([]);
+  const [charitiesLoading, setCharitiesLoading] = useState(true);
+  const [charitiesError, setCharitiesError] = useState("");
 
   const getAllUsers = useCallback(async () => {
-    setLoading(true);
+    setUserLoading(true);
     setUsersError("");
 
     try {
@@ -81,7 +67,42 @@ export function AdminContextProvider({ children }) {
       setUsersError(message);
       throw error;
     } finally {
-      setLoading(false);
+      setUserLoading(false);
+    }
+  }, []);
+
+  const getAllCharities = useCallback(async () => {
+    setCharitiesLoading(true);
+    setCharitiesError("");
+
+    try {
+      const allCharities = await fetchAllCharities();
+      setCharities(allCharities);
+      return allCharities;
+    } catch (error) {
+      const message = getErrorMessage(error, "Unable to fetch all charities.");
+      setCharitiesError(message);
+      throw error;
+    } finally {
+      setCharitiesLoading(false);
+    }
+  }, []);
+
+  const createCharity = useCallback(async (formData) => {
+    try {
+      const { data } = await axios.post(
+        "/api/adminApi/Charity/addCharity",
+        formData,
+      );
+
+      if (!data.success || !data.charity) {
+        throw new Error(data.message || "Unable to add charity.");
+      }
+
+      setCharities((current) => [data.charity, ...current]);
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error, "Unable to add charity."));
     }
   }, []);
 
@@ -102,7 +123,36 @@ export function AdminContextProvider({ children }) {
       })
       .finally(() => {
         if (active) {
-          setLoading(false);
+          setUserLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    fetchAllCharities()
+      .then((allCharities) => {
+        if (active) {
+          setCharities(allCharities);
+          setCharitiesError("");
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setCharitiesError(
+            getErrorMessage(error, "Unable to fetch all charities."),
+          );
+          console.error("Unable to load charities:", error);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setCharitiesLoading(false);
         }
       });
 
@@ -122,13 +172,17 @@ export function AdminContextProvider({ children }) {
   const value = {
     users,
     getAllUsers,
-    loading,
+    userLoading,
     usersError,
     charities,
     setCharities,
+    getAllCharities,
+    createCharity,
+    charitiesLoading,
+    charitiesError,
     categories: initialCategories,
     charityNames,
-    fetchAllUsers
+    fetchAllUsers,
   };
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

@@ -41,12 +41,12 @@ function CharityForm({ onClose, onSubmit, editingCharity, saving }) {
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      alert("Please select an image file");
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      alert("Please select a PNG, JPG, or WebP image.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image must be less than 5MB");
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image must be 2 MB or smaller.");
       return;
     }
     setImageFile(file);
@@ -58,7 +58,14 @@ function CharityForm({ onClose, onSubmit, editingCharity, saving }) {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      if (!file.type.startsWith("image/")) return;
+      if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+        alert("Please select a PNG, JPG, or WebP image.");
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Image must be 2 MB or smaller.");
+        return;
+      }
       setImageFile(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
@@ -93,7 +100,7 @@ function CharityForm({ onClose, onSubmit, editingCharity, saving }) {
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
             <h3 className="font-bold text-[#0B5D3B] text-[15px]">{editingCharity ? "Edit Charity" : "Add Charity"}</h3>
-            <p className="text-[11px] text-gray-400">Upload image file • name, category, description, raised, members</p>
+            <p className="text-[11px] text-gray-400">Upload PNG, JPG, or WebP up to 2 MB • name, category, description, raised, members</p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-50 hover:bg-gray-100 grid place-items-center transition">
             <X size={16} />
@@ -144,7 +151,7 @@ function CharityForm({ onClose, onSubmit, editingCharity, saving }) {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/png,image/jpeg,image/webp"
                 onChange={handleFileChange}
                 className="hidden"
               />
@@ -179,7 +186,7 @@ function CharityForm({ onClose, onSubmit, editingCharity, saving }) {
                     <Upload size={20} className="text-[#0B5D3B]" />
                   </div>
                   <p className="text-[13px] font-semibold text-gray-700">Click to upload or drag & drop</p>
-                  <p className="text-[11px] text-gray-400 mt-1">PNG, JPG, WEBP up to 5MB</p>
+                  <p className="text-[11px] text-gray-400 mt-1">PNG, JPG, WebP up to 2 MB</p>
                 </div>
               )}
             </div>
