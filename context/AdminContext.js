@@ -3,6 +3,7 @@
 import axios from "axios";
 import { createContext, useCallback, useEffect, useMemo, useState } from "react";
 
+
 const initialCategories = [
   "All",
   "Education",
@@ -106,6 +107,29 @@ export function AdminContextProvider({ children }) {
     }
   }, []);
 
+  const updateCharity = useCallback(async (formData)=>{
+    const { data } = await axios.put(``)
+
+  })
+
+  const deleteCharity = useCallback(async (id) => {
+    try {
+      const { data } = await axios.delete(
+        `/api/adminApi/Charity/deleteCharity/${encodeURIComponent(id)}`,
+      );
+      if (!data?.success) {
+        throw new Error(data?.message || "Unable to delete charity.");
+      }
+
+      setCharities((current) =>
+        current.filter((charity) => charity._id !== id),
+      );
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error, "Unable to delete charity."));
+    }
+  }, []);
+
   useEffect(() => {
     let active = true;
 
@@ -183,6 +207,7 @@ export function AdminContextProvider({ children }) {
     categories: initialCategories,
     charityNames,
     fetchAllUsers,
+    deleteCharity
   };
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

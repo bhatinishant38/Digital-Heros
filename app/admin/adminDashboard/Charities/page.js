@@ -21,6 +21,7 @@ const Charities = () => {
     getAllCharities,
     charitiesLoading,
     charitiesError,
+    deleteCharity
   } = useContext(AdminContext);
 
   const handleAddClick = () => {
@@ -68,7 +69,7 @@ const Charities = () => {
             item._id === editingCharity._id ? { ...item, ...charity } : item,
           ),
         );
-        toast.success("Charity updated (demo)");
+        toast.success("Charity updated ");
       } else {
         const result = await createCharity(formData);
         toast.success(result.message || "Charity added successfully.");
@@ -84,12 +85,15 @@ const Charities = () => {
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this charity? This cannot be undone.")) return;
+
     setDeletingId(id);
     try {
-      setCharities((current) => current.filter((charity) => charity._id !== id));
-      toast.success("Charity deleted (demo)");
+      const result = await deleteCharity(id);
+      toast.success(result.message || "Charity deleted.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to delete charity");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete charity.",
+      );
     } finally {
       setDeletingId("");
     }
