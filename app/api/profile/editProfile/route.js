@@ -98,6 +98,7 @@ export async function PUT(request) {
     }
 
     if (image instanceof File && image.size > 0) {
+      
       if (!allowedImageTypes.has(image.type)) {
         return NextResponse.json(
           { success: false, message: "Choose a PNG, JPG, or WebP image." },
