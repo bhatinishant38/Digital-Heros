@@ -59,7 +59,7 @@ const CharityCard = ({ charity, onEdit, onDelete, isDeleting }) => {
           </button>
           <button
             onClick={() => onDelete(charity._id)}
-            className="w-7 h-7 rounded-full bg-white/90 backdrop-blur grid place-items-center hover:bg-red-50 hover:text-red-600 shadow-sm transition"
+            className="w-7 h-7 rounded-full bg-white/90 backdrop-blur grid place-items-center text-gray-700 hover:bg-red-50 hover:text-red-600 shadow-sm transition"
           >
             <Trash2 size={12} />
           </button>

@@ -107,10 +107,27 @@ export function AdminContextProvider({ children }) {
     }
   }, []);
 
-  const updateCharity = useCallback(async (formData)=>{
-    const { data } = await axios.put(``)
+  const updateCharity = useCallback(async (id, formData) => {
+    try {
+      const { data } = await axios.put(
+        `/api/adminApi/Charity/editCharity/${encodeURIComponent(id)}`,
+        formData,
+      );
 
-  })
+      if (!data?.success || !data.charity) {
+        throw new Error(data?.message || "Unable to update charity.");
+      }
+
+      setCharities((current) =>
+        current.map((charity) =>
+          charity._id === id ? data.charity : charity,
+        ),
+      );
+      return data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error, "Unable to update charity."));
+    }
+  }, []);
 
   const deleteCharity = useCallback(async (id) => {
     try {
@@ -207,7 +224,8 @@ export function AdminContextProvider({ children }) {
     categories: initialCategories,
     charityNames,
     fetchAllUsers,
-    deleteCharity
+    deleteCharity,
+    updateCharity,
   };
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

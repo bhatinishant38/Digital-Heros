@@ -16,12 +16,12 @@ const Charities = () => {
 
   const {
     charities,
-    setCharities,
     createCharity,
     getAllCharities,
     charitiesLoading,
     charitiesError,
-    deleteCharity
+    deleteCharity,
+    updateCharity
   } = useContext(AdminContext);
 
   const handleAddClick = () => {
@@ -51,25 +51,9 @@ const Charities = () => {
 
     setSaving(true);
     try {
-      const charity = {
-        name,
-        category,
-        description,
-        raised: Number(formData.get("raised")) || 0,
-        members: Number(formData.get("members")) || 0,
-      };
-
       if (editingCharity) {
-        charity.image =
-          imageFile instanceof File
-            ? URL.createObjectURL(imageFile)
-            : editingCharity.image || "";
-        setCharities((current) =>
-          current.map((item) =>
-            item._id === editingCharity._id ? { ...item, ...charity } : item,
-          ),
-        );
-        toast.success("Charity updated ");
+        const result = await updateCharity(editingCharity._id, formData);
+        toast.success(result.message || "Charity updated successfully.");
       } else {
         const result = await createCharity(formData);
         toast.success(result.message || "Charity added successfully.");
@@ -77,7 +61,9 @@ const Charities = () => {
       setIsModalOpen(false);
       setEditingCharity(null);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Something went wrong");
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong",
+      );
     } finally {
       setSaving(false);
     }
