@@ -1,4 +1,5 @@
 import {  Heart } from "lucide-react";
+import Link from "next/link";
 
 export const CardCharity = ({ charity, onDonate }) => {
   const imageUrl = charity.image;
@@ -38,13 +39,13 @@ export const CardCharity = ({ charity, onDonate }) => {
         </div>
 
         {/* Donate button - redirects to donation page */}
-        <button
-          onClick={() => onDonate(charity)}
+        <Link
+          href={`/dashboard/charity/donate/${charity._id}`}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#0B5D3B] py-2.5 text-[13px] font-semibold text-white hover:bg-[#094d31] transition"
         >
           <Heart size={16} className="fill-white" />
           Donate Now
-        </button>
+        </Link>
       </div>
     </div>
   );

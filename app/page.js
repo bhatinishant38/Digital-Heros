@@ -18,6 +18,7 @@ const page = async () => {
   if (session?.user?.role === "admin") {
     redirect("/admin/adminDashboard");
   }
+  
   if (session?.user) {
     redirect("/dashboard");
   }

@@ -1,15 +1,13 @@
+'use client'
 import { useState, useEffect, useContext } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
-import { AppContext } from "../../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { ArrowLeft, Heart, ShieldCheck, Users, IndianRupee } from "lucide-react";
+import { AppContext } from "@/context/AppContext";
+import { useParams } from 'next/navigation';
 
 export default function DonateCharity() {
   const { id } = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { backendUrl, token, charities } = useContext(AppContext);
 
   const [charity, setCharity] = useState(location.state?.charity || null);
   const [loading, setLoading] = useState(!location.state?.charity);
@@ -18,6 +16,8 @@ export default function DonateCharity() {
   const [donating, setDonating] = useState(false);
 
   const presetAmounts = [100, 500, 1000, 2500, 5000];
+
+
 
   // Load Razorpay script
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function DonateCharity() {
         setCharity(data.charity || data);
       } catch (err) {
         toast.error("Charity not found");
-        navigate("/userhome/charity");
+        
       } finally {
         setLoading(false);
       }
