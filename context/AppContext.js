@@ -38,16 +38,38 @@ async function fetchUserScores() {
   }
 }
 
+async function fetchCharities() {
+  try {
+    const { data } = await axios.get("/api/charity/getCharity")
+    if(!data.success || !Array.isArray(data.success)){
+      throw new Error(data.message || "Unable to fetch charities")
+    }
+    return data.charities
+  } catch (error) {
+    if(error.response?.status === 401){
+      return []
+    }
+    throw new Error(getErrorMessage(error || "Unable to fetch charities"))
+  }
+}
+
 export const AppContextProvider = ({ children }) => {
   const [profileData, setProfileData] = useState(null);
   const [scores, setScores] = useState([]);
   const [scoresLoading, setScoresLoading] = useState(true);
+  const [charities ,setCharities] = useState([])
+ 
 
   const getProfileData = useCallback(async () => {
     const profile = await fetchProfileData();
     setProfileData(profile);
     return profile;
   }, []);
+
+  const getCharities = useCallback(async ()=>{
+    const AllCharities = await fetchCharities()
+    setCharities(AllCharities)
+  })
 
   const updateProfile = useCallback(async (formData) => {
     try {
@@ -58,6 +80,8 @@ export const AppContextProvider = ({ children }) => {
       throw new Error(getErrorMessage(error, "Unable to update your profile."));
     }
   }, []);
+
+  
 
   const getUserScores = useCallback(async () => {
     setScoresLoading(true);
@@ -181,6 +205,9 @@ export const AppContextProvider = ({ children }) => {
     updateScore,
     deleteScore,
     getUserScores,
+    charities,
+    getCharities,
+
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
