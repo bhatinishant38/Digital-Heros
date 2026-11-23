@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useContext } from "react";
 import { CreditCard, Heart, Ticket, Trophy, Users, Wallet } from "lucide-react";
-import { formatDate } from "@/components/ForUser/formatDate";
+import { formatDate } from "@/lib/formatDate";
 import { AdminContext } from "@/context/AdminContext";
 
 const mockData = {
@@ -48,15 +48,28 @@ const StatCard = ({ icon: Icon, label, value, note }) => (
 const AdminDashboard = () => {
   const { users, loading, usersError } = useContext(AdminContext);
   const data = mockData;
-  const { totalDraws, totalWinners, pendingVerifications, prizePaid, charityRaised, nextDraw, pendingWinners } = data;
+  const {
+    totalDraws,
+    totalWinners,
+    pendingVerifications,
+    prizePaid,
+    charityRaised,
+    nextDraw,
+    pendingWinners,
+  } = data;
 
   const totalUsers = users.length;
   const activeUsers = users.filter(hasActiveSubscription);
   const activeSubscriptions = activeUsers.length;
-  const monthlyCount = activeUsers.filter((user) => user.subscriptionPlan === "monthly").length;
-  const yearlyCount = activeUsers.filter((user) => user.subscriptionPlan === "yearly").length;
+  const monthlyCount = activeUsers.filter(
+    (user) => user.subscriptionPlan === "monthly",
+  ).length;
+  const yearlyCount = activeUsers.filter(
+    (user) => user.subscriptionPlan === "yearly",
+  ).length;
   const totalPlans = monthlyCount + yearlyCount;
-  const monthlyPercent = totalPlans === 0 ? 0 : Math.round((monthlyCount / totalPlans) * 100);
+  const monthlyPercent =
+    totalPlans === 0 ? 0 : Math.round((monthlyCount / totalPlans) * 100);
   const yearlyPercent = totalPlans === 0 ? 0 : 100 - monthlyPercent;
 
   const recentUsers = [...users]
@@ -65,14 +78,19 @@ const AdminDashboard = () => {
   const newUsersThisMonth = users.filter((u) => {
     const created = new Date(u.createdAt);
     const now = new Date();
-    return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+    return (
+      created.getMonth() === now.getMonth() &&
+      created.getFullYear() === now.getFullYear()
+    );
   }).length;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-500">A quick look at how the platform is doing.</p>
+        <p className="mt-1 text-sm text-gray-500">
+          A quick look at how the platform is doing.
+        </p>
       </div>
 
       {/* Numbers */}
@@ -90,7 +108,9 @@ const AdminDashboard = () => {
           note={
             loading || totalUsers === 0
               ? ""
-              : `${Math.round((activeSubscriptions / totalUsers) * 100)}% of all users`
+              : `${Math.round(
+                  (activeSubscriptions / totalUsers) * 100,
+                )}% of all users`
           }
         />
         <StatCard
@@ -120,12 +140,14 @@ const AdminDashboard = () => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-
         {/* Recent users */}
         <section className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">Recent Users</h2>
-            <Link href="/admin/adminDashboard/Users" className="text-sm font-medium text-[#0B5D3B] hover:underline">
+            <Link
+              href="/admin/adminDashboard/Users"
+              className="text-sm font-medium text-[#0B5D3B] hover:underline"
+            >
               View All
             </Link>
           </div>
@@ -148,7 +170,11 @@ const AdminDashboard = () => {
                   </tr>
                 ) : usersError ? (
                   <tr>
-                    <td colSpan={3} className="py-6 text-center text-red-600" role="alert">
+                    <td
+                      colSpan={3}
+                      className="py-6 text-center text-red-600"
+                      role="alert"
+                    >
                       {usersError}
                     </td>
                   </tr>
@@ -160,8 +186,13 @@ const AdminDashboard = () => {
                   </tr>
                 ) : (
                   recentUsers.map((user) => (
-                    <tr key={user._id} className="border-b border-gray-50 last:border-0">
-                      <td className="py-2.5 font-medium text-gray-900">{user.name}</td>
+                    <tr
+                      key={user._id}
+                      className="border-b border-gray-50 last:border-0"
+                    >
+                      <td className="py-2.5 font-medium text-gray-900">
+                        {user.name}
+                      </td>
                       <td className="py-2.5">
                         <span
                           className={`rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
@@ -173,7 +204,9 @@ const AdminDashboard = () => {
                           {user.subscriptionPlan || "None"}
                         </span>
                       </td>
-                      <td className="py-2.5 text-gray-600">{formatDate(user.createdAt)}</td>
+                      <td className="py-2.5 text-gray-600">
+                        {formatDate(user.createdAt)}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -186,13 +219,18 @@ const AdminDashboard = () => {
         <section className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">Needs Review</h2>
-            <Link href="/admin/adminDashboard/Winners" className="text-sm font-medium text-[#0B5D3B] hover:underline">
+            <Link
+              href="/admin/adminDashboard/Winners"
+              className="text-sm font-medium text-[#0B5D3B] hover:underline"
+            >
               View All
             </Link>
           </div>
 
           {pendingWinners.length === 0 ? (
-            <p className="py-6 text-center text-sm text-gray-400">Nothing waiting. All caught up!</p>
+            <p className="py-6 text-center text-sm text-gray-400">
+              Nothing waiting. All caught up!
+            </p>
           ) : (
             <ul className="space-y-3">
               {pendingWinners.map((winner) => (
@@ -201,10 +239,14 @@ const AdminDashboard = () => {
                   className="flex items-center justify-between rounded-lg bg-emerald-50/60 px-3 py-2.5"
                 >
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{winner.name}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {winner.name}
+                    </p>
                     <p className="text-xs text-gray-500">{winner.draw} draw</p>
                   </div>
-                  <p className="text-sm font-semibold text-[#0B5D3B]">{money(winner.prize)}</p>
+                  <p className="text-sm font-semibold text-[#0B5D3B]">
+                    {money(winner.prize)}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -213,27 +255,42 @@ const AdminDashboard = () => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-
         {/* Plan split */}
         <section className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm lg:col-span-2">
-          <h2 className="mb-4 font-semibold text-gray-900">Subscriptions by Plan</h2>
+          <h2 className="mb-4 font-semibold text-gray-900">
+            Subscriptions by Plan
+          </h2>
 
           <div className="mb-3 flex h-3 overflow-hidden rounded-full bg-gray-100">
-            <div className="bg-[#0B5D3B]" style={{ width: `${monthlyPercent}%` }} />
-            <div className="bg-emerald-300" style={{ width: `${yearlyPercent}%` }} />
+            <div
+              className="bg-[#0B5D3B]"
+              style={{ width: `${monthlyPercent}%` }}
+            />
+            <div
+              className="bg-emerald-300"
+              style={{ width: `${yearlyPercent}%` }}
+            />
           </div>
 
           <div className="flex flex-wrap gap-6 text-sm">
             <div className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full bg-[#0B5D3B]" />
               <span className="text-gray-600">
-                Monthly: <span className="font-semibold text-gray-900">{monthlyCount}</span> ({monthlyPercent}%)
+                Monthly:{" "}
+                <span className="font-semibold text-gray-900">
+                  {monthlyCount}
+                </span>{" "}
+                ({monthlyPercent}%)
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full bg-emerald-300" />
               <span className="text-gray-600">
-                Yearly: <span className="font-semibold text-gray-900">{yearlyCount}</span> ({yearlyPercent}%)
+                Yearly:{" "}
+                <span className="font-semibold text-gray-900">
+                  {yearlyCount}
+                </span>{" "}
+                ({yearlyPercent}%)
               </span>
             </div>
           </div>
@@ -243,7 +300,9 @@ const AdminDashboard = () => {
         <section className="rounded-xl border border-emerald-100 bg-emerald-50 p-5">
           <h2 className="font-semibold text-gray-900">Next Draw</h2>
           <p className="mt-3 text-sm text-gray-600">{nextDraw.date}</p>
-          <p className="text-3xl font-bold text-gray-900">{money(nextDraw.prizePool)}</p>
+          <p className="text-3xl font-bold text-gray-900">
+            {money(nextDraw.prizePool)}
+          </p>
           <p className="mb-4 text-xs text-gray-500">Prize pool</p>
           <Link
             href="/admin/adminDashboard/Draws"

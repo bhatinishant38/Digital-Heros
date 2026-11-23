@@ -2,7 +2,7 @@
 
 import { useContext } from "react";
 import { CheckCircle, Clock, CreditCard } from "lucide-react";
-import { formatDate } from "@/components/ForUser/formatDate";
+import { formatDate } from "@/lib/formatDate";
 import { AdminContext } from "@/context/AdminContext";
 
 const isActive = (user) =>
@@ -28,7 +28,11 @@ export default function SubscriptionsPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <SummaryCard icon={CreditCard} label="Total Subscriptions" value={subscribedUsers.length} />
+        <SummaryCard
+          icon={CreditCard}
+          label="Total Subscriptions"
+          value={subscribedUsers.length}
+        />
         <SummaryCard icon={CheckCircle} label="Active" value={activeCount} />
         <SummaryCard icon={Clock} label="Expired" value={expiredCount} />
       </div>
@@ -57,12 +61,20 @@ export default function SubscriptionsPage() {
                       {user.subscriptionPlan}
                     </td>
                     <td className="px-5 py-4">
-                      <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${active ? "bg-emerald-100 text-[#0B5D3B]" : "bg-gray-100 text-gray-600"}`}>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                          active
+                            ? "bg-emerald-100 text-[#0B5D3B]"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
                         {active ? "Active" : "Expired"}
                       </span>
                     </td>
                     <td className="px-5 py-4 text-gray-600">
-                      {user.subscriptionEnd ? formatDate(user.subscriptionEnd) : "—"}
+                      {user.subscriptionEnd
+                        ? formatDate(user.subscriptionEnd)
+                        : "—"}
                     </td>
                   </tr>
                 );

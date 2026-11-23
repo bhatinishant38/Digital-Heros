@@ -3,7 +3,7 @@
 import { useContext, useState } from "react";
 import { Search, Users as UsersIcon, CheckCircle, Clock } from "lucide-react";
 import { AdminContext } from "@/context/AdminContext";
-import { formatDate } from "@/components/ForUser/formatDate";
+import { formatDate } from "@/lib/formatDate";
 
 const USERS_PER_PAGE = 10;
 
@@ -38,7 +38,12 @@ const SummaryCard = ({ icon: Icon, label, value }) => (
 // ---- Page ----
 
 const Users = () => {
-  const { users, loading, usersError, charityNames = {} } = useContext(AdminContext);
+  const {
+    users,
+    loading,
+    usersError,
+    charityNames = {},
+  } = useContext(AdminContext);
 
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
@@ -122,9 +127,15 @@ const Users = () => {
           }}
           className={`${inputClass} sm:w-44 `}
         >
-          <option className="text-gray-600" value="all">All plans</option>
-          <option className="text-gray-600" value="monthly">Monthly</option>
-          <option className="text-gray-600" value="yearly">Yearly</option>
+          <option className="text-gray-600" value="all">
+            All plans
+          </option>
+          <option className="text-gray-600" value="monthly">
+            Monthly
+          </option>
+          <option className="text-gray-600" value="yearly">
+            Yearly
+          </option>
         </select>
       </div>
 

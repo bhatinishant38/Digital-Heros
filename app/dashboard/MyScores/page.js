@@ -1,21 +1,15 @@
-'use client'
+"use client";
 import { useContext, useState } from "react";
 import { toast } from "react-toastify";
 import { Plus } from "lucide-react";
 import ScoreTable from "@/components/ForUser/ScoreTable";
 import ScoreModal from "@/components/ForUser/ScoreModal";
-import { formatDate } from "@/components/ForUser/formatDate";
+import { formatDate } from "@/lib/formatDate";
 import { AppContext } from "@/context/AppContext";
 
-
 const Scores = () => {
-  const {
-    scores,
-    scoresLoading,
-    addScore,
-    updateScore,
-    deleteScore,
-  } = useContext(AppContext);
+  const { scores, scoresLoading, addScore, updateScore, deleteScore } =
+    useContext(AppContext);
 
   const [saving, setSaving] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -38,7 +32,9 @@ const Scores = () => {
         entry._id !== editing?._id,
     );
     if (duplicate) {
-      toast.error("You already have a score for this date. Edit that entry instead.");
+      toast.error(
+        "You already have a score for this date. Edit that entry instead.",
+      );
       return;
     }
 
@@ -70,7 +66,9 @@ const Scores = () => {
       <div className="mx-auto max-w-3xl">
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#0B5D3B]">My Golf Scores</h1>
+            <h1 className="text-2xl font-bold text-[#0B5D3B]">
+              My Golf Scores
+            </h1>
             <p className="mt-1 text-sm text-gray-500">
               Your last 5 Stableford scores (newest first).
             </p>
@@ -85,9 +83,15 @@ const Scores = () => {
         </div>
 
         {scoresLoading ? (
-          <p className="py-10 text-center text-sm text-gray-400">Loading scores...</p>
+          <p className="py-10 text-center text-sm text-gray-400">
+            Loading scores...
+          </p>
         ) : (
-          <ScoreTable scores={scores} onEdit={openEdit} onDelete={handleDelete} />
+          <ScoreTable
+            scores={scores}
+            onEdit={openEdit}
+            onDelete={handleDelete}
+          />
         )}
 
         <div className="mt-5 rounded-lg border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-sm text-gray-600">

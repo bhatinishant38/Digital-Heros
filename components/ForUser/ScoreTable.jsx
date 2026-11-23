@@ -1,5 +1,5 @@
 import { Pencil, Trash2 } from "lucide-react";
-import { formatDate } from "./formatDate";
+import { formatDate } from "../../lib/formatDate";
 
 const ScoreTable = ({ scores, onEdit, onDelete }) => (
   <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
