@@ -1,12 +1,15 @@
 'use client'
-import React,{ useContext } from 'react'
+import React,{ useContext, useEffect } from 'react'
 import { AppContext } from "../../context/AppContext";
 import { formatDate } from "./formatDate";
 import Link from 'next/link';
 
 const LatestScores = () => {
 
-  const {scores} = useContext(AppContext)
+  const {scores , getUserScores} = useContext(AppContext)
+  useEffect(()=>{
+    getUserScores()
+  },[scores])
 
   return (
     <section className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm">

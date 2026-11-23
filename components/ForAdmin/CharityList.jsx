@@ -31,7 +31,7 @@ const CharityList = ({  onEdit, onDelete, deletingId }) => {
   return (
     <div>
       {/* Search */}
-      <div className="relative max-w-120">
+      <div className="relative max-w-120 text-gray-700">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           type="search"

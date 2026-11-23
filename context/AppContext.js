@@ -9,6 +9,17 @@ export const AppContext = createContext();
 const getErrorMessage = (error, fallback) =>
   error.response?.data?.message || error.message || fallback;
 
+
+const categories = [
+  "All",
+  "Education",
+  "Healthcare",
+  "Environment",
+  "Food & Hunger",
+  "Animal Welfare",
+  "Disaster Relief",
+];
+
 async function fetchProfileData() {
   try {
     const { data } = await axios.get("/api/profile/getProfile");
@@ -40,16 +51,16 @@ async function fetchUserScores() {
 
 async function fetchCharities() {
   try {
-    const { data } = await axios.get("/api/charity/getCharity")
-    if(!data.success || !Array.isArray(data.success)){
-      throw new Error(data.message || "Unable to fetch charities")
+    const { data } = await axios.get("/api/charity/getCharity");
+    if (!data.success || !Array.isArray(data.charities)) {
+      throw new Error(data.message || "Unable to fetch charities.");
     }
-    return data.charities
+    return data.charities;
   } catch (error) {
-    if(error.response?.status === 401){
-      return []
+    if (error.response?.status === 401) {
+      return [];
     }
-    throw new Error(getErrorMessage(error || "Unable to fetch charities"))
+    throw new Error(getErrorMessage(error, "Unable to fetch charities."));
   }
 }
 
@@ -66,10 +77,10 @@ export const AppContextProvider = ({ children }) => {
     return profile;
   }, []);
 
-  const getCharities = useCallback(async ()=>{
-    const AllCharities = await fetchCharities()
-    setCharities(AllCharities)
-  })
+  const getCharities = useCallback(async () => {
+    const allCharities = await fetchCharities();
+    setCharities(allCharities);
+  }, []);
 
   const updateProfile = useCallback(async (formData) => {
     try {
@@ -207,6 +218,7 @@ export const AppContextProvider = ({ children }) => {
     getUserScores,
     charities,
     getCharities,
+    categories
 
   };
 
