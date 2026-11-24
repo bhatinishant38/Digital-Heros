@@ -1,56 +1,59 @@
-'use client'
-import { useState, useEffect, useContext } from "react";
+"use client";
+
+import { use, useEffect, useState } from "react";
+import Script from "next/script";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { ArrowLeft, Heart, ShieldCheck, Users, IndianRupee } from "lucide-react";
-import { AppContext } from "@/context/AppContext";
-import { useParams } from 'next/navigation';
 
-export default function DonateCharity() {
-  const { id } = useParams();
+export default function DonateCharity({ params }) {
+  const { id } = use(params);
+  const router = useRouter();
 
-  const [charity, setCharity] = useState(location.state?.charity || null);
-  const [loading, setLoading] = useState(!location.state?.charity);
+  const [charity, setCharity] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [amount, setAmount] = useState(500);
   const [customAmount, setCustomAmount] = useState("");
   const [donating, setDonating] = useState(false);
+  const [razorpayReady, setRazorpayReady] = useState(false);
 
   const presetAmounts = [100, 500, 1000, 2500, 5000];
 
-
-
-  // Load Razorpay script
   useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+    let active = true;
 
-  useEffect(() => {
     const fetchCharity = async () => {
-      if (charity) return;
-      const fromContext = charities.find((c) => c._id === id);
-      if (fromContext) {
-        setCharity(fromContext);
-        setLoading(false);
-        return;
-      }
       try {
-        setLoading(true);
-        const { data } = await axios.get(`${backendUrl}/api/charities/${id}`);
-        setCharity(data.charity || data);
-      } catch (err) {
-        toast.error("Charity not found");
-        
+        const { data } = await axios.get(
+          `/api/adminApi/Charity/donateCharity/${encodeURIComponent(id)}`,
+        );
+        if (!data.success || !data.data) {
+          throw new Error(data.message || "Unable to load this charity.");
+        }
+        if (active) {
+          setCharity(data.data);
+        }
+      } catch (error) {
+        if (active) {
+          toast.error(
+            error.response?.data?.message ||
+              error.message ||
+              "Unable to load this charity.",
+          );
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     };
-    fetchCharity();
+
+    if (id) fetchCharity();
+
+    return () => {
+      active = false;
+    };
   }, [id]);
 
   const getFinalAmount = () => (customAmount ? Number(customAmount) : amount);
@@ -63,71 +66,63 @@ export default function DonateCharity() {
       return;
     }
 
-    if (!token) {
-      toast.error("Please log in to donate");
+    if (!Number.isSafeInteger(finalAmount)) {
+      toast.error("Enter a whole amount in rupees.");
+      return;
+    }
+
+    if (!window.Razorpay || !razorpayReady) {
+      toast.error("Payment checkout is not ready. Please try again.");
       return;
     }
 
     setDonating(true);
     try {
-      // 1. Create Razorpay order from backend
-      // Route: POST /api/donation/create-order (authUser)
       const { data: orderData } = await axios.post(
-        `${backendUrl}/api/user/create-order`,
-        {
-          charityId: id,
-          amount: finalAmount, // in INR
-        },
-        { headers: { token } }
+        "/api/charity/donation/create-order",
+        { charityId: id, amount: finalAmount },
       );
 
-      if (!orderData.success) {
-        toast.error(orderData.message);
-        setDonating(false);
-        return;
+      if (!orderData.success || !orderData.order) {
+        throw new Error(orderData.message || "Unable to create donation order.");
       }
 
-      // 2. Open Razorpay checkout
       const options = {
-        key: orderData.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: orderData.order.amount, // in paise
+        key: orderData.key,
+        amount: orderData.order.amount,
         currency: orderData.order.currency,
         name: "Digital Heroes Charity",
         description: `Donation to ${charity.name}`,
         image: charity.image,
         order_id: orderData.order.id,
-        handler: async function (response) {
-          // 3. Verify payment on backend
-          // Route: POST /api/donation/verify-payment (authUser)
+        handler: async (response) => {
           try {
             const { data: verifyData } = await axios.post(
-              `${backendUrl}/api/user/verify-payment`,
+              "/api/charity/donation/verify-order",
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                charityId: id,
-                amount: finalAmount,
               },
-              { headers: { token } }
             );
 
-            if (verifyData.success) {
-              toast.success(`Thank you! ₹${finalAmount} donated to ${charity.name} ❤️`);
-              navigate("/userhome/charity", { state: { donated: true } });
-            } else {
-              toast.error(verifyData.message || "Payment verification failed");
+            if (!verifyData.success) {
+              throw new Error(verifyData.message || "Payment verification failed.");
             }
-          } catch (err) {
-            toast.error(err.response?.data?.message || "Payment verification failed");
-            console.error(err);
+
+            toast.success(
+              `Thank you! ₹${finalAmount} donated to ${charity.name}.`,
+            );
+            router.push("/dashboard/charity");
+          } catch (error) {
+            toast.error(
+              error.response?.data?.message ||
+                error.message ||
+                "Payment verification failed.",
+            );
           } finally {
             setDonating(false);
           }
-        },
-        notes: {
-          charityId: id,
-          charityName: charity.name,
         },
         theme: {
           color: "#0B5D3B",
@@ -137,18 +132,38 @@ export default function DonateCharity() {
         },
       };
 
-      const rzp = new window.Razorpay(options);
-      rzp.on("payment.failed", function (response) {
-        toast.error(`Payment failed: ${response.error.description}`);
+      const checkout = new window.Razorpay(options);
+      checkout.on("payment.failed", (response) => {
+        toast.error(
+          response.error?.description || "Payment failed. Please try again.",
+        );
         setDonating(false);
       });
-      rzp.open();
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Failed to create donation order");
+      checkout.open();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to create donation order.",
+      );
       setDonating(false);
     }
   };
+
+  if (!id) {
+    return (
+      <div className="mx-auto max-w-5xl p-6">
+        <p className="text-gray-600">This charity could not be found.</p>
+        <button
+          type="button"
+          onClick={() => router.push("/dashboard/charity")}
+          className="mt-4 text-sm font-semibold text-[#0B5D3B]"
+        >
+          Back to charities
+        </button>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -161,14 +176,39 @@ export default function DonateCharity() {
     );
   }
 
-  if (!charity) return null;
+  if (!charity) {
+    return (
+      <div className="mx-auto max-w-5xl p-6">
+        <p className="text-gray-600">This charity could not be found.</p>
+        <button
+          type="button"
+          onClick={() => router.push("/dashboard/charity")}
+          className="mt-4 text-sm font-semibold text-[#0B5D3B]"
+        >
+          Back to charities
+        </button>
+      </div>
+    );
+  }
 
-  const progress = Math.min(100, Math.round((charity.raised / 100000) * 100));
+  const raised = Number(charity.raised || 0);
+  const progress = Math.min(100, Math.round((raised / 100000) * 100));
 
   return (
+    <>
+    <Script
+      src="https://checkout.razorpay.com/v1/checkout.js"
+      strategy="afterInteractive"
+      onLoad={() => setRazorpayReady(true)}
+      onError={() => toast.error("Unable to load payment checkout.")}
+    />
     <div className="min-h-screen bg-[#f6f8f6]">
       <div className="max-w-5xl mx-auto px-4 py-6">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6">
+        <button
+          type="button"
+          onClick={() => router.push("/dashboard/charity")}
+          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-6"
+        >
           <ArrowLeft size={16} /> Back to charities
         </button>
 
@@ -193,7 +233,7 @@ export default function DonateCharity() {
 
                 <div className="mt-5 grid grid-cols-3 gap-3">
                   <div className="bg-[#f6f8f6] rounded-xl p-3 text-center">
-                    <p className="text-[18px] font-bold text-[#0B5D3B]">₹{Number(charity.raised).toLocaleString("en-IN")}</p>
+                    <p className="text-[18px] font-bold text-[#0B5D3B]">₹{raised.toLocaleString("en-IN")}</p>
                     <p className="text-[11px] text-gray-500">Raised</p>
                   </div>
                   <div className="bg-[#f6f8f6] rounded-xl p-3 text-center">
@@ -210,7 +250,7 @@ export default function DonateCharity() {
                   <div className="w-full bg-gray-100 rounded-full h-2">
                     <div className="bg-[#0B5D3B] h-2 rounded-full transition-all" style={{ width: `${progress}%` }}></div>
                   </div>
-                  <p className="text-[11px] text-gray-500 mt-1">₹{charity.raised.toLocaleString()} raised of ₹1,00,000 goal</p>
+                  <p className="text-[11px] text-gray-500 mt-1">₹{raised.toLocaleString("en-IN")} raised of ₹1,00,000 goal</p>
                 </div>
 
                 <div className="mt-5 p-3 bg-emerald-50 border border-emerald-100 rounded-xl flex gap-2">
@@ -283,11 +323,13 @@ export default function DonateCharity() {
 
               <button
                 onClick={handleRazorpayDonate}
-                disabled={donating}
+                disabled={donating || !razorpayReady}
                 className="mt-5 w-full bg-[#0B5D3B] text-white py-3.5 rounded-xl text-[14px] font-bold hover:bg-[#094d31] disabled:opacity-60 transition flex items-center justify-center gap-2 shadow-sm"
               >
                 {donating ? (
                   "Opening Razorpay..."
+                ) : !razorpayReady ? (
+                  "Loading payment checkout..."
                 ) : (
                   <>
                     <Heart size={18} className="fill-white" /> Donate ₹{getFinalAmount().toLocaleString("en-IN")} with Razorpay
@@ -308,5 +350,6 @@ export default function DonateCharity() {
         </div>
       </div>
     </div>
+    </>
   );
 }

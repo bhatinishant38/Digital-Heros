@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Sidebar from "@/components/ForUser/sidebar";
 
 export const metadata = {
@@ -8,7 +9,9 @@ export const metadata = {
 export default function DashboardLayout({ children }) {
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
+      <Suspense fallback={<div aria-hidden className="h-screen w-16 shrink-0 md:w-60" />}>
+        <Sidebar />
+      </Suspense>
       <div className="min-w-0 flex-1">
         <div className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           {children}

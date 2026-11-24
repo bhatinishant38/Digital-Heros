@@ -2,6 +2,7 @@ import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import { connection, NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import { CharityModel } from "@/models/charityModel";
+import { includeDonationTotals } from "@/lib/charityDonations";
 
 export async function GET() {
   await connection();
@@ -20,10 +21,7 @@ export async function GET() {
     const records = await CharityModel.find({})
       .sort({ createdAt: -1 })
       .lean();
-    const charities = records.map((charity) => ({
-      ...charity,
-      _id: charity._id.toString(),
-    }));
+    const charities = await includeDonationTotals(records);
 
     return NextResponse.json({ success: true, charities });
   } catch (error) {
