@@ -79,7 +79,7 @@ export default function DonateCharity({ params }) {
     setDonating(true);
     try {
       const { data: orderData } = await axios.post(
-        "/api/charity/donation/create-order",
+        "/api/adminApi/Charity/donationCharity/create-order",
         { charityId: id, amount: finalAmount },
       );
 
@@ -98,7 +98,7 @@ export default function DonateCharity({ params }) {
         handler: async (response) => {
           try {
             const { data: verifyData } = await axios.post(
-              "/api/charity/donation/verify-order",
+              "/api/adminApi/Charity/donationCharity/verify-order",
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -109,6 +109,12 @@ export default function DonateCharity({ params }) {
             if (!verifyData.success) {
               throw new Error(verifyData.message || "Payment verification failed.");
             }
+
+            const {data } = await axios.put("/api/adminApi/Charity/donationCharity/updateCharity" ,
+              {
+                charityId : id ,amount :finalAmount
+              }
+           )
 
             toast.success(
               `Thank you! ₹${finalAmount} donated to ${charity.name}.`,
@@ -295,7 +301,7 @@ export default function DonateCharity({ params }) {
 
               <div className="mt-4">
                 <label className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">Custom Amount (₹)</label>
-                <div className="relative mt-1.5">
+                <div className="relative mt-1.5 text-gray-700">
                   <IndianRupee size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
                     type="number"

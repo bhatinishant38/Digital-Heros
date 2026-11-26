@@ -36,7 +36,7 @@ const UserSchema = new mongoose.Schema(
       select: false,
     },
     charity : {
-        type : String ,default:'',
+        type : [String] ,default:[],
     },
     image : {type : String ,default : ''},
     gender: { type: String, default: "Not selected" },
