@@ -4,6 +4,7 @@ import { useContext, useState } from "react";
 import { Search, Users as UsersIcon, CheckCircle, Clock } from "lucide-react";
 import { AdminContext } from "@/context/AdminContext";
 import { formatDate } from "@/lib/formatDate";
+import { normalizeCharityIds } from "@/lib/normalizeCharityIds";
 
 const USERS_PER_PAGE = 10;
 
@@ -235,7 +236,9 @@ const Users = () => {
                     </td>
 
                     <td className="px-5 py-3.5 text-gray-600">
-                      {charityNames[user.charity] || user.charity}
+                      {normalizeCharityIds(user.charity)
+                        .map((charityId) => charityNames[charityId] || charityId)
+                        .join(", ") || "-"}
                     </td>
 
                     <td className="px-5 py-3.5 text-gray-600">

@@ -1,5 +1,6 @@
 import { auth } from "@/app/api/auth/[...nextauth]/auth";
 import dbConnect from "@/lib/dbConnect";
+import { normalizeCharityIds } from "@/lib/normalizeCharityIds";
 import UserModel from "@/models/userModel";
 import { connection, NextResponse } from "next/server";
 
@@ -40,7 +41,7 @@ export async function GET() {
         image: user.image,
         subscriptionPlan: user.subscriptionPlan,
         subscriptionEnd: user.subscriptionEnd,
-        charity: user.charity,
+        charity: normalizeCharityIds(user.charity),
       },
     });
   } catch (error) {

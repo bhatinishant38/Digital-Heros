@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { Camera } from "lucide-react";
 import { AppContext } from "@/context/AppContext";
+import { normalizeCharityIds } from "@/lib/normalizeCharityIds";
 
 
 // ---- Helpers ----
@@ -354,7 +355,7 @@ const MyProfile = () => {
 
           <Field label="Supporting">
             <p className="font-semibold text-gray-900">
-              { profileData.charity ? profileData.charity :'-'}
+              {normalizeCharityIds(profileData.charity).join(", ") || "-"}
             </p>
           </Field>
         </div>

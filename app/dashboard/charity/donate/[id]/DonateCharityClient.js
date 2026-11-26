@@ -79,7 +79,7 @@ export default function DonateCharity({ params }) {
     setDonating(true);
     try {
       const { data: orderData } = await axios.post(
-        "/api/adminApi/Charity/donationCharity/create-order",
+        "/api/adminApi/Charity/donateCharity/create-order",
         { charityId: id, amount: finalAmount },
       );
 
@@ -98,7 +98,7 @@ export default function DonateCharity({ params }) {
         handler: async (response) => {
           try {
             const { data: verifyData } = await axios.post(
-              "/api/adminApi/Charity/donationCharity/verify-order",
+              "/api/adminApi/Charity/donateCharity/verify-order",
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -110,11 +110,16 @@ export default function DonateCharity({ params }) {
               throw new Error(verifyData.message || "Payment verification failed.");
             }
 
-            const {data } = await axios.put("/api/adminApi/Charity/donationCharity/updateCharity" ,
-              {
-                charityId : id ,amount :finalAmount
-              }
-           )
+            const { data: charityData } = await axios.post(
+             "/api/adminApi/Charity/donateCharity/updateCharity",
+             { charityId: id, amount: finalAmount },
+            );
+            if (!charityData.success) {
+             throw new Error(
+               charityData.message || "Unable to update charity totals.",
+             );
+            }
+
 
             toast.success(
               `Thank you! ₹${finalAmount} donated to ${charity.name}.`,

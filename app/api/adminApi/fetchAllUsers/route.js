@@ -1,4 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
+import { normalizeCharityIds } from "@/lib/normalizeCharityIds";
 import UserModel from "@/models/userModel";
 import { connection, NextResponse } from "next/server";
 import { auth } from "../../auth/[...nextauth]/auth";
@@ -34,6 +35,7 @@ export async function GET() {
       ...user,
       _id: user._id.toString(),
       name: user.username,
+      charity: normalizeCharityIds(user.charity),
     }));
 
     return NextResponse.json({ success: true, users });
