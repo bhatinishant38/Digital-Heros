@@ -112,7 +112,11 @@ export default function DonateCharity({ params }) {
 
             const { data: charityData } = await axios.post(
              "/api/charity/donate/updateCharity",
-             { charityId: id, amount: finalAmount },
+             {
+               charityId: id,
+               amount: finalAmount,
+               paymentId: response.razorpay_payment_id,
+             },
             );
             if (!charityData.success) {
              throw new Error(

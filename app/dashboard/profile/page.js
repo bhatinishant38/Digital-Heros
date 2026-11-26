@@ -355,7 +355,7 @@ const MyProfile = () => {
 
           <Field label="Supporting">
             <p className="font-semibold text-gray-900">
-              {normalizeCharityIds(profileData.charity).join(", ") || "-"}
+              {normalizeCharityIds(profileData.charity).join(" , ") || "-"}
             </p>
           </Field>
         </div>

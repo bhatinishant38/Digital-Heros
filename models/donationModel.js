@@ -22,6 +22,11 @@ const donationSchema = new mongoose.Schema(
       required: true,
       default: false,
     },
+    statsApplied: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     razorpayOrderId: {
       type: String,
       required: true,
