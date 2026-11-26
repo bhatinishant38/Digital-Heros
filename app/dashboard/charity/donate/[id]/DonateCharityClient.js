@@ -79,7 +79,7 @@ export default function DonateCharity({ params }) {
     setDonating(true);
     try {
       const { data: orderData } = await axios.post(
-        "/api/adminApi/Charity/donateCharity/create-order",
+        "/api/charity/donate/create-order",
         { charityId: id, amount: finalAmount },
       );
 
@@ -98,7 +98,7 @@ export default function DonateCharity({ params }) {
         handler: async (response) => {
           try {
             const { data: verifyData } = await axios.post(
-              "/api/adminApi/Charity/donateCharity/verify-order",
+              "/api/charity/donate/verify-order",
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -111,7 +111,7 @@ export default function DonateCharity({ params }) {
             }
 
             const { data: charityData } = await axios.post(
-             "/api/adminApi/Charity/donateCharity/updateCharity",
+             "/api/charity/donate/updateCharity",
              { charityId: id, amount: finalAmount },
             );
             if (!charityData.success) {
@@ -210,7 +210,7 @@ export default function DonateCharity({ params }) {
     <Script
       src="https://checkout.razorpay.com/v1/checkout.js"
       strategy="afterInteractive"
-      onLoad={() => setRazorpayReady(true)}
+      onReady={() => setRazorpayReady(true)}
       onError={() => toast.error("Unable to load payment checkout.")}
     />
     <div className="min-h-screen bg-[#f6f8f6]">
